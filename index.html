@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carta Astral — Descubre tu Cielo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Cinzel:wght@400;500&family=Raleway:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    .R{background:#080808;color:#f5f0e8;font-family:'Cormorant Garamond',serif;position:relative;}
+    .stars{position:absolute;inset:0;pointer-events:none;z-index:0;}
+    .star{position:absolute;border-radius:50%;background:#fff;}
+    @keyframes tw{0%,100%{opacity:.05}50%{opacity:.35}}
+    .Z{position:relative;z-index:1;}
+    .sec{max-width:660px;margin:0 auto;padding:0 20px;}
+    .hero{text-align:center;padding:36px 20px 26px;border-bottom:1px solid rgba(201,168,76,.13);}
+    .eyebrow{font-family:'Raleway',sans-serif;font-size:10px;letter-spacing:.3em;color:#c9a84c;text-transform:uppercase;margin-bottom:10px;}
+    .h1{font-family:'Cinzel',serif;font-size:clamp(32px,6vw,46px);font-weight:400;line-height:1.05;letter-spacing:.04em;margin-bottom:8px;}
+    .h1 em{font-style:italic;color:#e4c97a;font-family:'Cormorant Garamond',serif;}
+    .subtitle{font-size:14px;color:#c8bfa8;font-style:italic;line-height:1.8;margin-bottom:16px;}
+    .hero-btn{font-family:'Raleway',sans-serif;font-size:11px;letter-spacing:.22em;text-transform:uppercase;background:#c9a84c;color:#080808;padding:10px 24px;border:none;cursor:pointer;}
+    .hero-btn:hover{background:#e4c97a;}
+    .ring-wrap{width:130px;height:130px;margin:0 auto 14px;}
+    .form-sec{padding:28px 0 22px;border-bottom:1px solid rgba(201,168,76,.13);}
+    .sec-title{font-family:'Cinzel',serif;font-size:19px;font-weight:400;letter-spacing:.06em;text-align:center;margin-bottom:4px;}
+    .sec-sub{font-size:13px;color:#c8bfa8;text-align:center;font-style:italic;margin-bottom:16px;}
+    .card{background:#1a1a1a;border:1px solid rgba(201,168,76,.18);padding:20px 20px 14px;position:relative;}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#c9a84c,transparent);}
+    .flabel{font-family:'Raleway',sans-serif;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#c9a84c;display:block;margin-bottom:7px;}
+    .field-row{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:8px;margin-bottom:14px;}
+    .field-row-time{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
+    .field-btn{background:#111;border:1px solid rgba(201,168,76,.22);color:#f5f0e8;font-family:'Cormorant Garamond',serif;padding:10px 8px;text-align:center;cursor:pointer;transition:border-color .2s;position:relative;user-select:none;}
+    .field-btn:hover{border-color:rgba(201,168,76,.45);}
+    .field-btn.open{border-color:#c9a84c;border-bottom-color:transparent;}
+    .fb-label{font-family:'Raleway',sans-serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#7a6230;display:block;margin-bottom:3px;}
+    .fb-val{color:#f5f0e8;font-family:'Cinzel',serif;font-size:16px;display:block;}
+    .fb-val.ph{color:rgba(245,240,232,.25);font-family:'Raleway',sans-serif;font-size:12px;}
+    .fp-anchor{position:relative;}
+    .fp{position:absolute;top:100%;left:0;right:0;background:#141414;border:1px solid #c9a84c;border-top:none;z-index:999;}
+    .fp-scroll{max-height:200px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(201,168,76,.3) transparent;}
+    .fp-scroll::-webkit-scrollbar{width:3px;}
+    .fp-scroll::-webkit-scrollbar-thumb{background:rgba(201,168,76,.3);}
+    .fp-item{padding:9px 14px;font-family:'Cinzel',serif;font-size:15px;color:rgba(245,240,232,.55);cursor:pointer;border-bottom:1px solid rgba(201,168,76,.07);letter-spacing:.04em;}
+    .fp-item:last-child{border-bottom:none;}
+    .fp-item:hover{background:rgba(201,168,76,.1);color:#f5f0e8;}
+    .fp-item.chosen{color:#c9a84c;background:rgba(201,168,76,.07);}
+    .fp-item.chosen::after{content:'✓';float:right;font-size:12px;color:#c9a84c;}
+    .city-row{display:flex;gap:8px;margin-bottom:6px;}
+    .city-input{flex:1;background:#111;border:1px solid rgba(201,168,76,.2);color:#f5f0e8;font-family:'Cormorant Garamond',serif;font-size:16px;padding:10px 12px;outline:none;transition:border-color .25s;}
+    .city-input:focus{border-color:rgba(201,168,76,.5);}
+    .city-sbtn{background:transparent;border:1px solid rgba(201,168,76,.35);color:#c9a84c;font-family:'Raleway',sans-serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:10px 13px;cursor:pointer;white-space:nowrap;}
+    .city-sbtn:hover{background:rgba(201,168,76,.08);}
+    .city-list{background:#141414;border:1px solid rgba(201,168,76,.28);border-top:none;}
+    .city-item{padding:9px 13px;font-family:'Cormorant Garamond',serif;font-size:15px;color:#c8bfa8;cursor:pointer;border-bottom:1px solid rgba(201,168,76,.07);}
+    .city-item:hover{background:rgba(201,168,76,.09);color:#e4c97a;}
+    .city-ok{font-size:13px;font-style:italic;color:#c9a84c;margin-top:5px;padding:6px 10px;border-left:2px solid rgba(201,168,76,.4);}
+    .fnote{font-size:13px;font-style:italic;color:rgba(201,168,76,.65);text-align:center;min-height:15px;margin-bottom:3px;}
+    .calc-btn{width:100%;padding:12px;background:transparent;border:1px solid #c9a84c;color:#c9a84c;font-family:'Raleway',sans-serif;font-size:11px;letter-spacing:.28em;text-transform:uppercase;cursor:pointer;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;}
+    .calc-btn:hover{background:#c9a84c;color:#080808;}
+    .calc-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+    /* RESULT */
+    .result-sec{padding:28px 0 22px;border-bottom:1px solid rgba(201,168,76,.13);}
+    .result-hdr{text-align:center;margin-bottom:18px;}
+    .trinity{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(201,168,76,.14);margin-bottom:20px;}
+    .pcard{background:#1a1a1a;padding:22px 12px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:5px;}
+    .pcard.feat{background:#111;position:relative;}
+    .pcard.feat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#c9a84c,transparent);}
+
+    /* Label row: sello canvas + texto */
+    .plbl-row{display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:2px;}
+    .plbl-icon{flex-shrink:0;}
+    .plbl{font-family:'Raleway',sans-serif;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#7a6230;}
+
+    .psign{font-family:'Cinzel',serif;font-size:14px;font-weight:400;color:#f5f0e8;margin-top:1px;}
+    .pdeg{font-size:11px;color:#c9a84c;font-style:italic;}
+    .pdesc{font-size:13px;color:#c8bfa8;line-height:1.75;margin-top:6px;font-style:italic;text-align:left;padding:0 4px;}
+
+    .wheel-wrap{display:flex;justify-content:center;margin-bottom:20px;}
+    .synth{background:#1a1a1a;border:1px solid rgba(201,168,76,.16);padding:22px 24px;text-align:center;position:relative;margin-bottom:14px;}
+    .synth::before,.synth::after{content:'';position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.26),transparent);}
+    .synth::before{top:0}.synth::after{bottom:0}
+    .synth-title{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.1em;color:#c9a84c;margin-bottom:9px;}
+    .synth-text{font-size:14px;font-style:italic;color:#c8bfa8;line-height:2;}
+    .reset-btn{display:block;margin:0 auto;background:transparent;border:1px solid rgba(201,168,76,.25);color:#c8bfa8;font-family:'Raleway',sans-serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;padding:9px 18px;cursor:pointer;transition:all .2s;}
+    .reset-btn:hover{border-color:#c9a84c;color:#c9a84c;}
+    .footer{text-align:center;padding:16px;border-top:1px solid rgba(201,168,76,.11);}
+    .footer p{font-family:'Cinzel',serif;font-size:12px;color:#c9a84c;letter-spacing:.1em;}
+    .footer-sub{font-family:'Raleway',sans-serif;font-size:10px;color:#7a6230;letter-spacing:.18em;text-transform:uppercase;margin-top:3px;}
+
+    @media(max-width:520px){
+      .trinity{grid-template-columns:1fr;}
+      .field-row{grid-template-columns:1fr 1fr;}
+      .field-row .fp-anchor:last-child{grid-column:1/-1;}
+    }
+  </style>
+</head>
+<body>
+<div class="R">
+<div class="stars" id="stars"></div>
+<div class="Z">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="ring-wrap"><canvas id="heroRing" width="130" height="130"></canvas></div>
+  <p class="eyebrow">✦ Astrología Natal ✦</p>
+  <h1 class="h1">Tu Carta<br><em>Astral</em></h1>
+  <p class="subtitle">Ingresa tu fecha, hora y lugar de nacimiento<br>para revelar los astros que guían tu destino.</p>
+  <button class="hero-btn" onclick="document.getElementById('fSec').scrollIntoView({behavior:'smooth'})">Descubrir mi carta</button>
+</div>
+
+<!-- FORM -->
+<div class="form-sec" id="fSec">
+  <div class="sec">
+    <h2 class="sec-title">Datos de Nacimiento</h2>
+    <p class="sec-sub">Toca cada campo para seleccionar.</p>
+    <div class="card">
+      <span class="flabel">Fecha de Nacimiento</span>
+      <div class="field-row" style="margin-bottom:22px;">
+        <div class="fp-anchor">
+          <div class="field-btn" id="btnDay" onclick="toggleFP('day')"><span class="fb-label">Día</span><span class="fb-val ph" id="dispDay">--</span></div>
+          <div class="fp" id="fpDay" style="display:none;"><div class="fp-scroll" id="fsDay"></div></div>
+        </div>
+        <div class="fp-anchor">
+          <div class="field-btn" id="btnMonth" onclick="toggleFP('month')"><span class="fb-label">Mes</span><span class="fb-val ph" id="dispMonth">--</span></div>
+          <div class="fp" id="fpMonth" style="display:none;"><div class="fp-scroll" id="fsMonth"></div></div>
+        </div>
+        <div class="fp-anchor">
+          <div class="field-btn" id="btnYear" onclick="toggleFP('year')"><span class="fb-label">Año</span><span class="fb-val ph" id="dispYear">----</span></div>
+          <div class="fp" id="fpYear" style="display:none;"><div class="fp-scroll" id="fsYear"></div></div>
+        </div>
+      </div>
+      <span class="flabel">Hora de Nacimiento</span>
+      <div class="field-row-time" style="margin-bottom:16px;">
+        <div class="fp-anchor">
+          <div class="field-btn" id="btnHour" onclick="toggleFP('hour')"><span class="fb-label">Hora</span><span class="fb-val ph" id="dispHour">--</span></div>
+          <div class="fp" id="fpHour" style="display:none;"><div class="fp-scroll" id="fsHour"></div></div>
+        </div>
+        <div class="fp-anchor">
+          <div class="field-btn" id="btnMin" onclick="toggleFP('min')"><span class="fb-label">Minutos</span><span class="fb-val ph" id="dispMin">--</span></div>
+          <div class="fp" id="fpMin" style="display:none;"><div class="fp-scroll" id="fsMin"></div></div>
+        </div>
+        <div class="fp-anchor">
+          <div class="field-btn" id="btnAmpm" onclick="toggleFP('ampm')"><span class="fb-label">AM / PM</span><span class="fb-val ph" id="dispAmpm">--</span></div>
+          <div class="fp" id="fpAmpm" style="display:none;"><div class="fp-scroll" id="fsAmpm"></div></div>
+        </div>
+      </div>
+      <span class="flabel">Ciudad de Nacimiento</span>
+      <div class="city-row">
+        <input class="city-input" type="text" id="cityIn" placeholder="Ej: Santiago, Buenos Aires…"/>
+        <button class="city-sbtn" onclick="buscarCiudad()">Buscar →</button>
+      </div>
+      <div id="cityListWrap"></div>
+      <div id="cityOk" style="display:none;" class="city-ok"></div>
+      <div class="fnote" id="fnote"></div>
+      <button class="calc-btn" id="calcBtn" onclick="calcular()">
+        <span>Calcular Carta Astral</span><span style="font-size:13px;opacity:.7;">◈</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div class="result-sec" id="resultSec" style="display:none;">
+  <div class="sec">
+    <div class="result-hdr">
+      <p class="eyebrow">✦ Tu Carta Natal ✦</p>
+      <h2 style="font-family:'Cinzel',serif;font-size:17px;font-weight:400;letter-spacing:.05em;" id="rTitle">Carta Natal</h2>
+    </div>
+    <div class="trinity">
+      <div class="pcard">
+        <div class="plbl-row">
+          <canvas class="plbl-icon" width="22" height="22" id="lblIconSol"></canvas>
+          <span class="plbl">Sol</span>
+        </div>
+        <canvas width="58" height="58" id="iconSol"></canvas>
+        <div class="psign" id="rSolSign">—</div>
+        <div class="pdeg" id="rSolDeg"></div>
+        <p class="pdesc" id="rSolDesc"></p>
+      </div>
+      <div class="pcard feat">
+        <div class="plbl-row">
+          <canvas class="plbl-icon" width="22" height="22" id="lblIconLuna"></canvas>
+          <span class="plbl">Luna</span>
+        </div>
+        <canvas width="58" height="58" id="iconLuna"></canvas>
+        <div class="psign" id="rLunaSign">—</div>
+        <div class="pdeg" id="rLunaDeg"></div>
+        <p class="pdesc" id="rLunaDesc"></p>
+      </div>
+      <div class="pcard">
+        <div class="plbl-row">
+          <canvas class="plbl-icon" width="22" height="22" id="lblIconAsc"></canvas>
+          <span class="plbl">Ascendente</span>
+        </div>
+        <canvas width="58" height="58" id="iconAsc"></canvas>
+        <div class="psign" id="rAscSign">—</div>
+        <div class="pdeg" id="rAscDeg"></div>
+        <p class="pdesc" id="rAscDesc"></p>
+      </div>
+    </div>
+    <div class="wheel-wrap"><canvas id="wheel" width="340" height="340" style="max-width:100%;"></canvas></div>
+    <div class="synth">
+      <div class="synth-title">✦ Síntesis de tu Energía</div>
+      <p class="synth-text" id="rSynth"></p>
+    </div>
+    <button class="reset-btn" onclick="resetear()">Calcular otra carta</button>
+  </div>
+</div>
+
+<div class="footer"><p>✦ Carta Astral ✦</p><p class="footer-sub">Efemérides astronómicas precisas</p></div>
+</div>
+</div>
+
+<script>
+/* ── GLIFOS ZODIACALES — Sello Antiguo ───────────────────────────────────── */
+function dAries(x,cx,cy,s){x.beginPath();x.moveTo(cx,cy+s*.6);x.bezierCurveTo(cx-s*.9,cy+s*.2,cx-s*.9,cy-s*.5,cx,cy);x.bezierCurveTo(cx+s*.9,cy-s*.5,cx+s*.9,cy+s*.2,cx,cy+s*.6);x.moveTo(cx,cy);x.lineTo(cx,cy-s*.9);x.stroke();}
+function dTaurus(x,cx,cy,s){x.beginPath();x.arc(cx,cy+s*.25,s*.5,0,Math.PI*2);x.stroke();x.beginPath();x.moveTo(cx-s*.5,cy-s*.2);x.bezierCurveTo(cx-s*.7,cy-s*.9,cx+s*.7,cy-s*.9,cx+s*.5,cy-s*.2);x.stroke();}
+function dGemini(x,cx,cy,s){x.beginPath();x.moveTo(cx-s*.45,cy-s*.9);x.lineTo(cx-s*.45,cy+s*.9);x.moveTo(cx+s*.45,cy-s*.9);x.lineTo(cx+s*.45,cy+s*.9);x.moveTo(cx-s*.55,cy-s*.3);x.lineTo(cx+s*.55,cy-s*.3);x.moveTo(cx-s*.55,cy+s*.3);x.lineTo(cx+s*.55,cy+s*.3);x.stroke();}
+function dCancer(x,cx,cy,s){x.beginPath();x.arc(cx-s*.2,cy+s*.15,s*.4,Math.PI*.15,Math.PI*1.05);x.stroke();x.beginPath();x.arc(cx+s*.2,cy-s*.15,s*.4,Math.PI*1.15,Math.PI*2.05);x.stroke();}
+function dLeo(x,cx,cy,s){x.beginPath();x.arc(cx-s*.15,cy+s*.35,s*.35,0,Math.PI*2);x.stroke();x.beginPath();x.moveTo(cx-s*.15,cy);x.bezierCurveTo(cx-s*.15,cy-s*.75,cx+s*.65,cy-s*.75,cx+s*.65,cy+s*.05);x.bezierCurveTo(cx+s*.65,cy+s*.55,cx+s*.25,cy+s*.85,cx,cy+s*.55);x.stroke();}
+function dVirgo(x,cx,cy,s){x.beginPath();x.moveTo(cx-s*.55,cy-s*.85);x.lineTo(cx-s*.55,cy+s*.85);x.moveTo(cx-s*.55,cy-s*.15);x.bezierCurveTo(cx-s*.55,cy-s*.85,cx+s*.15,cy-s*.85,cx+s*.15,cy-s*.15);x.moveTo(cx+s*.15,cy-s*.15);x.lineTo(cx+s*.15,cy+s*.85);x.moveTo(cx+s*.15,cy+s*.55);x.bezierCurveTo(cx+s*.15,cy+s*.9,cx+s*.65,cy+s*.9,cx+s*.65,cy+s*.55);x.stroke();}
+function dLibra(x,cx,cy,s){x.beginPath();x.moveTo(cx-s*.65,cy+s*.35);x.lineTo(cx+s*.65,cy+s*.35);x.moveTo(cx-s*.65,cy+s*.65);x.lineTo(cx+s*.65,cy+s*.65);x.moveTo(cx-s*.45,cy-s*.2);x.bezierCurveTo(cx-s*.45,cy-s*.75,cx+s*.45,cy-s*.75,cx+s*.45,cy-s*.2);x.stroke();}
+function dScorpio(x,cx,cy,s){x.beginPath();x.moveTo(cx-s*.55,cy-s*.85);x.lineTo(cx-s*.55,cy+s*.15);x.bezierCurveTo(cx-s*.55,cy+s*.55,cx,cy+s*.55,cx,cy+s*.15);x.bezierCurveTo(cx,cy+s*.55,cx+s*.55,cy+s*.55,cx+s*.55,cy+s*.15);x.lineTo(cx+s*.55,cy-s*.25);x.moveTo(cx+s*.55,cy-s*.25);x.lineTo(cx+s*.85,cy+s*.05);x.moveTo(cx+s*.55,cy-s*.25);x.lineTo(cx+s*.25,cy+s*.05);x.stroke();}
+function dSagittarius(x,cx,cy,s){x.beginPath();x.moveTo(cx-s*.7,cy+s*.7);x.lineTo(cx+s*.7,cy-s*.7);x.moveTo(cx+s*.15,cy-s*.7);x.lineTo(cx+s*.7,cy-s*.7);x.lineTo(cx+s*.7,cy-s*.15);x.stroke();}
+function dCapricorn(x,cx,cy,s){x.beginPath();x.moveTo(cx-s*.55,cy-s*.75);x.lineTo(cx-s*.55,cy+s*.15);x.bezierCurveTo(cx-s*.55,cy+s*.55,cx,cy+s*.55,cx,cy+s*.15);x.bezierCurveTo(cx,cy-s*.35,cx-s*.25,cy-s*.45,cx-s*.15,cy-s*.05);x.bezierCurveTo(cx+s*.1,cy+s*.25,cx+s*.65,cy+s*.25,cx+s*.65,cy+s*.65);x.stroke();}
+function dAquarius(x,cx,cy,s){x.beginPath();x.moveTo(cx-s*.75,cy-s*.25);x.bezierCurveTo(cx-s*.35,cy-s*.65,cx+s*.35,cy+s*.15,cx+s*.75,cy-s*.25);x.moveTo(cx-s*.75,cy+s*.35);x.bezierCurveTo(cx-s*.35,cy-s*.05,cx+s*.35,cy+s*.75,cx+s*.75,cy+s*.35);x.stroke();}
+function dPisces(x,cx,cy,s){x.beginPath();x.moveTo(cx-s*.75,cy-s*.45);x.bezierCurveTo(cx-s*.15,cy-s*.85,cx-s*.15,cy-s*.05,cx-s*.75,cy+s*.45);x.moveTo(cx+s*.75,cy-s*.45);x.bezierCurveTo(cx+s*.15,cy-s*.85,cx+s*.15,cy-s*.05,cx+s*.75,cy+s*.45);x.moveTo(cx-s*.65,cy);x.lineTo(cx+s*.65,cy);x.stroke();}
+const DRAWS=[dAries,dTaurus,dGemini,dCancer,dLeo,dVirgo,dLibra,dScorpio,dSagittarius,dCapricorn,dAquarius,dPisces];
+
+function drawSello(ctx,cx,cy,r,glyphIdx,bright){
+  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.fillStyle='#1a1a1a';ctx.fill();
+  ctx.strokeStyle=bright?'#c9a84c':'rgba(201,168,76,0.45)';ctx.lineWidth=Math.max(0.8,r*0.08);ctx.stroke();
+  ctx.strokeStyle=bright?'#e4c97a':'rgba(228,201,122,0.6)';ctx.lineWidth=Math.max(0.9,r*0.1);ctx.lineCap='round';ctx.lineJoin='round';
+  DRAWS[glyphIdx](ctx,cx,cy,r*.58);
+}
+
+/* ── HERO RING animado ───────────────────────────────────────────────────── */
+(function(){
+  const cv=document.getElementById('heroRing'),ctx=cv.getContext('2d'),S=130,c=65;
+  let angle=0;
+  function frame(){
+    angle+=0.08;ctx.clearRect(0,0,S,S);
+    ctx.beginPath();ctx.arc(c,c,60,0,Math.PI*2);ctx.strokeStyle='rgba(201,168,76,0.15)';ctx.lineWidth=1;ctx.stroke();
+    ctx.beginPath();ctx.arc(c,c,46,0,Math.PI*2);ctx.strokeStyle='rgba(201,168,76,0.06)';ctx.lineWidth=0.5;ctx.stroke();
+    ctx.fillStyle='rgba(201,168,76,0.4)';ctx.font='14px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('✦',c,c);
+    for(let i=0;i<12;i++){
+      const a=(i/12)*Math.PI*2+(angle*Math.PI/180)-Math.PI/2;
+      drawSello(ctx,c+54*Math.cos(a),c+54*Math.sin(a),8,i,i%2===0);
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* ── PICKERS ─────────────────────────────────────────────────────────────── */
+const pad=n=>String(n).padStart(2,'0');
+const MONTHS=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const MONTHS_S=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const CFG={
+  day:{items:Array.from({length:31},(_,i)=>pad(i+1)),disp:i=>pad(i+1)},
+  month:{items:MONTHS,disp:i=>MONTHS_S[i]},
+  year:{items:Array.from({length:86},(_,i)=>String(1930+i)),disp:i=>String(1930+i)},
+  hour:{items:Array.from({length:12},(_,i)=>pad(i+1)),disp:i=>pad(i+1)},
+  min:{items:Array.from({length:60},(_,i)=>pad(i)),disp:i=>pad(i)},
+  ampm:{items:['AM','PM'],disp:i=>['AM','PM'][i]},
+};
+const state={day:null,month:null,year:null,hour:null,min:null,ampm:null};
+let openFP=null;
+Object.entries(CFG).forEach(([key,cfg])=>{
+  const K=key.charAt(0).toUpperCase()+key.slice(1);
+  const scroll=document.getElementById('fs'+K);if(!scroll)return;
+  cfg.items.forEach((item,i)=>{
+    const el=document.createElement('div');el.className='fp-item';el.textContent=item;
+    el.onclick=()=>selectItem(key,i);scroll.appendChild(el);
+  });
+});
+function toggleFP(key){
+  if(openFP&&openFP!==key)closeFP(openFP);
+  const K=key.charAt(0).toUpperCase()+key.slice(1);
+  const fp=document.getElementById('fp'+K),btn=document.getElementById('btn'+K);
+  if(!fp)return;
+  if(fp.style.display==='block')closeFP(key);
+  else{fp.style.display='block';btn.classList.add('open');openFP=key;}
+}
+function closeFP(key){
+  const K=key.charAt(0).toUpperCase()+key.slice(1);
+  const fp=document.getElementById('fp'+K),btn=document.getElementById('btn'+K);
+  if(fp)fp.style.display='none';if(btn)btn.classList.remove('open');
+  if(openFP===key)openFP=null;
+}
+function selectItem(key,idx){
+  state[key]=idx;
+  const K=key.charAt(0).toUpperCase()+key.slice(1);
+  const disp=document.getElementById('disp'+K);
+  disp.textContent=CFG[key].disp(idx);disp.classList.remove('ph');
+  document.getElementById('fs'+K).querySelectorAll('.fp-item').forEach((el,i)=>el.classList.toggle('chosen',i===idx));
+  closeFP(key);
+}
+document.addEventListener('click',e=>{if(openFP&&!e.target.closest('.fp-anchor'))closeFP(openFP);});
+
+/* ── CIUDADES ─────────────────────────────────────────────────────────────── */
+const CITIES=[
+  ['Santiago','Chile',-33.4569,-70.6483],['Valparaíso','Chile',-33.0472,-71.6127],
+  ['Concepción','Chile',-36.8201,-73.0444],['Temuco','Chile',-38.7359,-72.5904],
+  ['Antofagasta','Chile',-23.6509,-70.3975],['La Serena','Chile',-29.9027,-71.2519],
+  ['Rancagua','Chile',-34.1703,-70.7407],['Puerto Montt','Chile',-41.4693,-72.9424],
+  ['Iquique','Chile',-20.2149,-70.1526],['Arica','Chile',-18.4746,-70.2979],
+  ['Punta Arenas','Chile',-53.1638,-70.9171],['Talca','Chile',-35.4264,-71.6554],
+  ['Viña del Mar','Chile',-33.0153,-71.5500],['Copiapó','Chile',-27.3668,-70.3317],
+  ['Buenos Aires','Argentina',-34.6037,-58.3816],['Córdoba','Argentina',-31.4135,-64.1811],
+  ['Rosario','Argentina',-32.9442,-60.6505],['Mendoza','Argentina',-32.8908,-68.8272],
+  ['Lima','Perú',-12.0464,-77.0428],['Bogotá','Colombia',4.7110,-74.0721],
+  ['Medellín','Colombia',6.2442,-75.5812],['Caracas','Venezuela',10.4806,-66.9036],
+  ['Quito','Ecuador',-0.2295,-78.5243],['La Paz','Bolivia',-16.5000,-68.1500],
+  ['Asunción','Paraguay',-25.2867,-57.6470],['Montevideo','Uruguay',-34.9011,-56.1645],
+  ['Brasilia','Brasil',-15.7797,-47.9297],['São Paulo','Brasil',-23.5505,-46.6333],
+  ['Río de Janeiro','Brasil',-22.9068,-43.1729],['Madrid','España',40.4168,-3.7038],
+  ['Barcelona','España',41.3851,2.1734],['Ciudad de México','México',19.4326,-99.1332],
+  ['Guadalajara','México',20.6597,-103.3496],['Monterrey','México',25.6866,-100.3161],
+  ['New York','EE.UU.',40.7128,-74.0060],['Los Ángeles','EE.UU.',34.0522,-118.2437],
+  ['Chicago','EE.UU.',41.8781,-87.6298],['Miami','EE.UU.',25.7617,-80.1918],
+  ['Londres','Reino Unido',51.5074,-0.1278],['París','Francia',48.8566,2.3522],
+  ['Berlín','Alemania',52.5200,13.4050],['Roma','Italia',41.9028,12.4964],
+  ['Lisboa','Portugal',38.7223,-9.1393],['Tokio','Japón',35.6762,139.6503],
+  ['Sídney','Australia',-33.8688,151.2093],['Toronto','Canadá',43.6510,-79.3470],
+  ['Dubái','Emiratos Árabes',25.2048,55.2708],['Mumbai','India',19.0760,72.8777],
+];
+let selLoc=null;
+function buscarCiudad(){
+  const q=document.getElementById('cityIn').value.trim().toLowerCase();
+  const lw=document.getElementById('cityListWrap'),note=document.getElementById('fnote');
+  lw.innerHTML='';selLoc=null;document.getElementById('cityOk').style.display='none';
+  if(q.length<2){note.textContent='⚠ Escribe al menos 2 caracteres.';return;}
+  const hits=CITIES.filter(c=>c[0].toLowerCase().includes(q)||c[1].toLowerCase().includes(q)).slice(0,6);
+  if(!hits.length){note.textContent='⚠ Ciudad no encontrada.';return;}
+  note.textContent='';
+  const wrap=document.createElement('div');wrap.className='city-list';
+  hits.forEach(c=>{
+    const el=document.createElement('div');el.className='city-item';
+    el.textContent=`${c[0]}, ${c[1]}`;
+    el.onclick=()=>{
+      selLoc={nom:c[0],lat:c[2],lon:c[3]};
+      document.getElementById('cityIn').value=`${c[0]}, ${c[1]}`;
+      lw.innerHTML='';
+      const ok=document.getElementById('cityOk');
+      ok.textContent=`✓ ${c[0]}, ${c[1]}`;ok.style.display='block';note.textContent='';
+    };
+    wrap.appendChild(el);
+  });
+  lw.appendChild(wrap);
+}
+document.getElementById('cityIn').addEventListener('keydown',e=>{if(e.key==='Enter')buscarCiudad();});
+
+/* ── DATOS ASTROLÓGICOS EXPANDIDOS ──────────────────────────────────────── */
+const SIGNS=['Aries','Tauro','Géminis','Cáncer','Leo','Virgo','Libra','Escorpio','Sagitario','Capricornio','Acuario','Piscis'];
+
+const DS={
+  'Aries':'Aries es el primer fuego del zodiaco, el impulso que rompe el silencio antes de que el mundo despierte. Con el Sol aquí, tu identidad más profunda está ligada a la acción, a iniciar caminos que otros aún no ven. Posees una valentía instintiva y una energía que necesita moverse, crear y atreverse. Tu misión vital es aprender a liderar sin arrollar, a encender sin consumir.',
+  'Tauro':'El Sol en Tauro te ancla en la realidad tangible con una fuerza tranquila y poderosa. Tu esencia busca la belleza en lo concreto: en la tierra, los sentidos, la permanencia. Eres alguien que construye con paciencia y que valora lo duradero por encima de lo fugaz. Tu desafío es soltar el apego cuando lo que construiste ya cumplió su ciclo.',
+  'Géminis':'Con el Sol en Géminis, tu identidad es plural y cambiante por naturaleza. Tu ser más auténtico vive en la conexión entre ideas, en el salto de un pensamiento a otro, en la capacidad de ver múltiples verdades al mismo tiempo. Eres un puente entre mundos y personas. Tu desafío es encontrar el hilo que une tus muchos yos en una narrativa coherente.',
+  'Cáncer':'El Sol en Cáncer te convierte en guardián de la memoria y del afecto. Tu identidad está profundamente enraizada en el hogar, la familia y los vínculos que atraviesan el tiempo. Posees una intuición extraordinaria y una sensibilidad que te permite percibir lo que otros sienten antes de que lo expresen. Tu camino es aprender a nutrir sin perderte en el otro.',
+  'Leo':'El Sol está en su casa en Leo, y eso se nota: hay una presencia luminosa en ti que no necesita esfuerzo para ocupar el espacio. Tu identidad se expresa a través de la creatividad, la generosidad y el deseo genuino de dejar una huella memorable. Naciste para brillar, pero también para enseñar a otros que ellos también pueden hacerlo.',
+  'Virgo':'El Sol en Virgo expresa una identidad que busca la perfección no por vanidad, sino por servicio. Tu ser más auténtico encuentra sentido en el análisis, el detalle y la mejora constante de todo lo que toca. Posees una mente analítica extraordinaria y una capacidad de trabajo que pocos pueden igualar. Tu desafío es aceptar que la imperfección también es parte del orden.',
+  'Libra':'Con el Sol en Libra, tu identidad se define en relación al otro. Eres un arquitecto del equilibrio, alguien que percibe la desarmonía antes que nadie y siente el impulso genuino de restaurarla. Posees elegancia natural, sentido estético y una inteligencia social sofisticada. Tu camino es aprender que la paz auténtica no siempre evita el conflicto.',
+  'Escorpio':'El Sol en Escorpio no teme la oscuridad: la habita, la estudia y emerge de ella transformado. Tu identidad más profunda vive en los extremos, en la intensidad de las experiencias que otros evitan. Posees una voluntad de hierro y una capacidad de percepción que bordea lo sobrenatural. Tu misión es transformar el poder en sabiduría, la sospecha en confianza ganada.',
+  'Sagitario':'El Sol en Sagitario te define como un eterno buscador de horizontes. Tu identidad se alimenta de la expansión: física, filosófica, espiritual. Posees un optimismo casi irracional que, paradójicamente, suele estar en lo correcto. Eres de los que parten sin saber bien a dónde, y aun así llegan exactamente donde debían. Tu desafío es completar lo que empiezas.',
+  'Capricornio':'El Sol en Capricornio te otorga una identidad construida sobre la disciplina, la responsabilidad y la visión a largo plazo. Sabes instintivamente que las cosas que valen la pena requieren tiempo, y no te asusta eso. Posees una madurez que a veces llega antes que la edad, y una ambición que no busca el aplauso sino el legado verdadero. Tu camino es aprender a disfrutar el trayecto.',
+  'Acuario':'El Sol en Acuario te hace portador de algo que pertenece al futuro. Tu identidad más auténtica vive en la visión colectiva, en la ruptura de lo establecido, en la intuición de lo que aún no ha llegado pero que ya puedes sentir. Posees una originalidad genuina y un compromiso con los ideales que puede volverse tu mayor fortaleza o tu mayor soledad.',
+  'Piscis':'El Sol en Piscis te convierte en un alma que siente el todo. Tu identidad es difusa y profunda al mismo tiempo: te identificas con el dolor ajeno, con la belleza oculta, con lo invisible que sostiene lo visible. Posees una creatividad y una empatía que superan los límites del lenguaje. Tu desafío es no disolverse en el otro, mantener el hilo de regreso a ti mismo.'
+};
+
+const DL={
+  'Aries':'Con la Luna en Aries, tu mundo emocional funciona como un destello: intenso, inmediato y sin filtros. Sientes antes de pensar, y a menudo actúas antes de sentir. Necesitas que tus emociones tengan una salida física, un movimiento que las libere. La impaciencia emocional puede ser tu sombra, pero también tu mayor honestidad: nunca finges lo que no sientes.',
+  'Tauro':'La Luna en Tauro es una de las posiciones más estables del zodiaco. Tu mundo interior busca la seguridad, la continuidad y el placer sensorial como forma de nutrición emocional. Necesitas entornos predecibles, ritmos conocidos y afectos que demuestren su presencia en lo cotidiano. Cuando te sientes seguro, eres una roca para quienes te rodean.',
+  'Géminis':'Tu Luna en Géminis procesa las emociones a través de las palabras. Necesitas hablar, escribir, nombrar lo que sientes para poder integrarlo. Emocionalmente eres curioso, cambiante y a veces difícil de seguir, incluso para ti mismo. Tu bienestar interior depende de la estimulación mental: cuando tu mente está viva, tu corazón también lo está.',
+  'Cáncer':'La Luna está en su signo regente en Cáncer, lo que amplifica su poder al máximo. Tu vida emocional es rica, profunda y a veces desbordante. Sientes todo con una intensidad que puede ser un don o una carga, dependiendo del día. Tu memoria emocional es extraordinaria: guardas cada matiz de lo que has vivido y amado. Aprender a soltar es tu práctica más importante.',
+  'Leo':'La Luna en Leo necesita ser vista y reconocida para sentirse segura. Tu bienestar emocional se nutre del aprecio genuino, de los gestos que confirman que importas y que lo que das tiene valor. Eres generoso emocionalmente cuando te sientes seguro, y puedes volverse dramático cuando no. Tu corazón es grande y sabe cómo hacer que los demás se sientan especiales.',
+  'Virgo':'Con la Luna en Virgo, tus emociones pasan por el filtro del análisis antes de llegar a la superficie. Tiendes a racionalizar lo que sientes, a buscar la utilidad o la causa lógica detrás de cada estado interior. Necesitas sentirte útil y organizado para estar emocionalmente bien. Tu cuidado hacia los demás se expresa en los pequeños detalles que nadie más nota.',
+  'Libra':'La Luna en Libra necesita del equilibrio relacional para estar en paz. Tu bienestar emocional está íntimamente ligado a la armonía en tus vínculos: cuando hay conflicto a tu alrededor, lo sientes en el cuerpo. Tienes una sensibilidad estética que también es emocional: la belleza, el orden y la cortesía no son caprichos, son necesidades reales de tu mundo interior.',
+  'Escorpio':'La Luna en Escorpio es la más intensa del zodiaco. Tu vida emocional opera en capas profundas que rara vez muestras, y cada experiencia que vives deja una huella duradera. Sientes con una intensidad que puede ser difícil de gestionar, y a veces el miedo a ser herido provoca que te adelantes al dolor. Tu mayor poder emocional está en la capacidad de transformar la herida en sabiduría.',
+  'Sagitario':'Con la Luna en Sagitario, tus emociones necesitan espacio y libertad para respirar. Te sientes bien cuando hay movimiento, aventura o algún horizonte nuevo en el que poner los ojos. El optimismo es tu mecanismo de defensa, y muchas veces funciona. Emocionalmente huyes de lo que te asfixia o restringe. Tu bienestar depende de sentirte en expansión constante.',
+  'Capricornio':'La Luna en Capricornio contiene las emociones con disciplina y reserva. No es que no sientas: sientes profundo. Pero has aprendido a no mostrarlo hasta estar seguro de que es seguro hacerlo. Necesitas sentirte productivo y capaz para estar emocionalmente estable. Tu expresión afectiva es seria y fiel, y cuando te permites la vulnerabilidad, es algo que no olvidará quien lo recibe.',
+  'Acuario':'Con la Luna en Acuario, tus emociones tienen una dimensión colectiva que va más allá de lo personal. Te conmueven las causas, las injusticias, el bienestar de la humanidad a veces más que el tuyo propio. Eres emocionalmente independiente y valoras la amistad por encima del romance. Tu desafío es permitirte sentir también lo cercano, lo íntimo, lo que no tiene nombre grandioso.',
+  'Piscis':'La Luna en Piscis te convierte en un esponja emocional de extraordinaria sensibilidad. Absorbes el estado emocional de quienes te rodean con tanta facilidad que a veces no sabes dónde terminas tú y dónde empiezan los demás. Posees una empatía casi mística y una capacidad de compasión sin límites. Tu tarea es aprender a proteger tu espacio interior sin cerrarte al mundo.'
+};
+
+const DA={
+  'Aries':'El Ascendente en Aries proyecta al mundo una imagen de energía directa, confianza instintiva y presencia que ocupa el espacio sin pedir permiso. Eres de los que entran primero, hablan primero, actúan primero. Esta máscara natal no es necesariamente quien eres en privado, pero sí la energía que el mundo percibe en ti antes de conocerte. Genera tanto admiración como malentendidos: te ven más seguro de lo que a veces te sientes.',
+  'Tauro':'El Ascendente en Tauro proyecta calma, solidez y una presencia tranquilizadora que hace que las personas se sientan seguras a tu lado. Antes de conocerte, el mundo te percibe como alguien confiable, paciente y de movimientos deliberados. Tienes una elegancia natural y un sentido estético visible que forma parte de tu primera impresión. Generas confianza antes de decir una sola palabra.',
+  'Géminis':'Con Ascendente en Géminis, tu presencia en el mundo es ágil, curiosa y difícil de fijar. Las personas te perciben como alguien inteligente, adaptable y con quien es fácil conversar desde el primer momento. Tienes una expresión facial y verbal muy activa que transmite que siempre estás pensando. Esta movilidad puede ser fascinante o desconcertante para quienes esperan más constancia.',
+  'Cáncer':'El Ascendente en Cáncer proyecta calidez, receptividad y una sensibilidad que invita a la confidencia. Las personas sienten, antes de conocerte bien, que pueden abrirse contigo. Tu presencia tiene algo maternal o protector que genera cercanía casi automática. Eres de los que recuerdan los detalles de cada persona que conoces, y eso deja una impresión difícil de olvidar.',
+  'Leo':'Con Ascendente en Leo, tu entrada a cualquier espacio tiene un efecto lumínico. No necesitas hacer nada especial: simplemente estás, y el ambiente responde. Las personas te perciben como alguien seguro, carismático y con una vitalidad que convoca. Tienes una presencia física magnética y un calor personal que hace que los demás quieran estar cerca. Tu desafío es que a veces la expectativa que generas es difícil de sostener.',
+  'Virgo':'El Ascendente en Virgo proyecta precisión, atención al detalle y una inteligencia discreta que no necesita anunciarse. Las personas te perciben como alguien organizado, confiable y con un criterio agudo. Tienes una presencia sobria que transmite competencia antes que carisma, y eso suele generar respeto antes que fascinación. Tu primera impresión mejora considerablemente cuando muestras también tu calidez.',
+  'Libra':'Con Ascendente en Libra, la primera impresión que dejas es de elegancia, equilibrio y una facilidad social que parece innata. Las personas te perciben como diplomático, estéticamente consciente y agradable de tratar. Tienes una forma de relacionarte que hace que cada persona sienta que tiene tu atención completa. Generas armonía con tu sola presencia, y eso es un don poco común.',
+  'Escorpio':'El Ascendente en Escorpio proyecta una intensidad silenciosa que pocas personas pueden ignorar. Antes de que digas nada, ya has generado una impresión: hay algo magnético y ligeramente misterioso en tu presencia que despierta la curiosidad o la cautela, a veces ambas. Tus ojos comunican más de lo que crees. Las personas sienten que hay capas en ti que aún no han visto, y eso les genera fascinación.',
+  'Sagitario':'El Ascendente en Sagitario proyecta optimismo, apertura y una energía expansiva que contagia. Las personas te perciben como alguien libre, aventurero y con quien las conversaciones siempre terminan en algún lugar interesante e inesperado. Tienes una franqueza natural que puede ser refrescante o incómoda, dependiendo del contexto. Tu presencia suele hacer que los demás sientan que el mundo es más grande.',
+  'Capricornio':'Con Ascendente en Capricornio, proyectas autoridad, seriedad y una madurez que a veces supera tu edad. Las personas te perciben como alguien responsable, estructurado y con quien se puede contar cuando las cosas se complican. Tienes una presencia que genera respeto antes de ganarse la simpatía, lo que a veces puede crear una distancia inicial que desaparece cuando te conocen mejor.',
+  'Acuario':'El Ascendente en Acuario proyecta originalidad, independencia y algo indefiniblemente diferente que hace que seas difícil de clasificar. Las personas sienten que eres alguien fuera de lo común antes de poder explicar exactamente por qué. Tienes una presencia que no sigue los códigos sociales esperados, y eso puede generar tanto admiración como incomprensión. Tu mayor impacto en el mundo suele ser el de hacer pensar.',
+  'Piscis':'El Ascendente en Piscis proyecta suavidad, sensibilidad y un aura etérea que hace que las personas sientan que hay algo especial en ti que no pueden nombrar del todo. Generas compasión y ternura casi instintivamente. A veces, sin quererlo, atraes a quienes necesitan ser escuchados o contenidos. Tu presencia tiene algo de espejo: las personas suelen ver reflejado en ti lo que necesitan encontrar.'
+};
+
+/* ── ASTRO MATH ──────────────────────────────────────────────────────────── */
+function jd(y,mo,d,h){if(mo<=2){y--;mo+=12;}const A=Math.floor(y/100),B=2-A+Math.floor(A/4);return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(mo+1))+d+h/24+B-1524.5;}
+function cSol(j){const T=(j-2451545)/36525,M=((357.5291+35999.0503*T)%360+360)%360,Mr=M*Math.PI/180,C=(1.9146-0.004817*T)*Math.sin(Mr)+0.019993*Math.sin(2*Mr)+0.00029*Math.sin(3*Mr),L0=((280.46646+36000.76983*T)%360+360)%360;return((L0+C)%360+360)%360;}
+function cLuna(j){const T=(j-2451545)/36525,L1=((218.3164477+481267.88123421*T)%360+360)%360,D=((297.8501921+445267.1114034*T)%360+360)%360,M=((357.5291092+35999.0502909*T)%360+360)%360,M1=((134.9633964+477198.8675055*T)%360+360)%360,F=((93.2950950+483202.0175233*T)%360+360)%360,Dr=D*Math.PI/180,Mr=M*Math.PI/180,M1r=M1*Math.PI/180,Fr=F*Math.PI/180;const c=6.288774*Math.sin(M1r)+1.274027*Math.sin(2*Dr-M1r)+0.658314*Math.sin(2*Dr)+0.213618*Math.sin(2*M1r)-0.185116*Math.sin(Mr)-0.114332*Math.sin(2*Fr)+0.058793*Math.sin(2*Dr-2*M1r);return((L1+c)%360+360)%360;}
+function cAsc(j,lat,lon){const T=(j-2451545)/36525;let G=((280.46061837+360.98564736629*(j-2451545)+0.000387933*T*T)%360+360)%360;const LST=((G+lon)%360+360)%360,eps=(23.439291111-0.013004167*T)*Math.PI/180,LSTr=LST*Math.PI/180,latr=lat*Math.PI/180;return(Math.atan2(-Math.cos(LSTr),Math.sin(LSTr)*Math.cos(eps)+Math.tan(latr)*Math.sin(eps))*180/Math.PI+360)%360;}
+function toSign(g){const i=Math.floor(g/30)%12;return{signo:SIGNS[i],idx:i,grado:(g%30).toFixed(1)};}
+
+function calcular(){
+  const note=document.getElementById('fnote');
+  if(state.day===null){note.textContent='⚠ Elige el día.';return;}
+  if(state.month===null){note.textContent='⚠ Elige el mes.';return;}
+  if(state.year===null){note.textContent='⚠ Elige el año.';return;}
+  if(state.hour===null){note.textContent='⚠ Elige la hora.';return;}
+  if(state.min===null){note.textContent='⚠ Elige los minutos.';return;}
+  if(state.ampm===null){note.textContent='⚠ Elige AM o PM.';return;}
+  if(!selLoc){note.textContent='⚠ Busca y selecciona tu ciudad.';return;}
+  const day=state.day+1,mo=state.month+1,yr=1930+state.year;
+  let hr=state.hour+1;
+  if(state.ampm===1&&hr!==12)hr+=12;
+  if(state.ampm===0&&hr===12)hr=0;
+  const J=jd(yr,mo,day,hr+state.min/60-Math.round(selLoc.lon/15));
+  const sg=cSol(J),lg=cLuna(J),ag=cAsc(J,selLoc.lat,selLoc.lon);
+  const s=toSign(sg),l=toSign(lg),a=toSign(ag);
+
+  document.getElementById('rTitle').textContent=`Carta Natal — ${selLoc.nom}`;
+
+  document.getElementById('rSolSign').textContent=s.signo;
+  document.getElementById('rSolDeg').textContent=`${s.grado}°`;
+  document.getElementById('rSolDesc').textContent=DS[s.signo]||'';
+
+  document.getElementById('rLunaSign').textContent=l.signo;
+  document.getElementById('rLunaDeg').textContent=`${l.grado}°`;
+  document.getElementById('rLunaDesc').textContent=DL[l.signo]||'';
+
+  document.getElementById('rAscSign').textContent=a.signo;
+  document.getElementById('rAscDeg').textContent=`${a.grado}°`;
+  document.getElementById('rAscDesc').textContent=DA[a.signo]||'';
+
+  document.getElementById('rSynth').textContent=
+    `Tu Sol en ${s.signo} revela el propósito central de tu existencia: lo que viniste a ser cuando nadie te observa. Tu Luna en ${l.signo} es el idioma secreto de tus emociones, el lugar al que regresas cuando el mundo se vuelve demasiado. Tu Ascendente en ${a.signo} es la puerta por donde entras a la vida de los demás, la primera palabra de una presentación que nunca termina de sorprender. Estos tres pilares no actúan por separado: se dialogan, se tensionan y se complementan en la arquitectura única de quien tú eres.`;
+
+  document.getElementById('resultSec').style.display='block';
+  note.textContent='';
+  setTimeout(()=>{
+    /* Sello grande en la tarjeta */
+    drawSelloCanvas('iconSol',s.idx);
+    drawSelloCanvas('iconLuna',l.idx);
+    drawSelloCanvas('iconAsc',a.idx);
+    /* Mini sello en el label */
+    drawSelloCanvas('lblIconSol',s.idx,true);
+    drawSelloCanvas('lblIconLuna',l.idx,true);
+    drawSelloCanvas('lblIconAsc',a.idx,true);
+    drawWheel({solG:sg,lunaG:lg,ascG:ag});
+    document.getElementById('resultSec').scrollIntoView({behavior:'smooth'});
+  },120);
+}
+
+function drawSelloCanvas(id,idx,small){
+  const cv=document.getElementById(id);if(!cv)return;
+  const ctx=cv.getContext('2d'),S=cv.width,c=S/2;
+  ctx.clearRect(0,0,S,S);
+  drawSello(ctx,c,c,c-1,idx,true);
+}
+
+/* ── RUEDA CON SELLOS ANIMADOS ───────────────────────────────────────────── */
+let wRAF=null,wAng=0;
+function drawWheel(c){
+  const cv=document.getElementById('wheel'),ctx=cv.getContext('2d'),W=cv.width,H=cv.height,cx=W/2,cy=H/2,R=W/2-10;
+  if(wRAF)cancelAnimationFrame(wRAF);let lt=null;
+  function frame(t){
+    if(!lt)lt=t;wAng+=(t-lt)*0.005;lt=t;
+    ctx.clearRect(0,0,W,H);
+    const gD='rgba(201,168,76,0.15)',gold='#c9a84c';
+    ctx.fillStyle='#181818';ctx.beginPath();ctx.arc(cx,cy,R+7,0,Math.PI*2);ctx.fill();
+    [R+5,R,R*.76,R*.44].forEach(r=>{ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle=gD;ctx.lineWidth=1;ctx.stroke();});
+    const off=(-Math.PI/2)+(wAng*Math.PI/180);
+    for(let i=0;i<12;i++){
+      const a1=off+(i/12)*Math.PI*2,mid=off+((i+.5)/12)*Math.PI*2;
+      ctx.beginPath();ctx.moveTo(cx+R*.76*Math.cos(a1),cy+R*.76*Math.sin(a1));ctx.lineTo(cx+R*Math.cos(a1),cy+R*Math.sin(a1));ctx.strokeStyle=gD;ctx.lineWidth=1;ctx.stroke();
+      const sr=(R+R*.76)/2,mr=R*.1;
+      drawSello(ctx,cx+sr*Math.cos(mid),cy+sr*Math.sin(mid),mr,i,i%2===0);
+    }
+    [0,Math.PI/2,Math.PI,Math.PI*3/2].forEach(a=>{ctx.beginPath();ctx.moveTo(cx+R*.44*Math.cos(a),cy+R*.44*Math.sin(a));ctx.lineTo(cx+R*.76*Math.cos(a),cy+R*.76*Math.sin(a));ctx.strokeStyle='rgba(201,168,76,.22)';ctx.lineWidth=1.5;ctx.stroke();});
+    function planet(g,draw,col,ri){
+      const a=(-Math.PI/2)+(g/360)*Math.PI*2,px=cx+ri*Math.cos(a),py=cy+ri*Math.sin(a);
+      ctx.beginPath();ctx.moveTo(cx+R*.76*Math.cos(a),cy+R*.76*Math.sin(a));ctx.lineTo(px,py);ctx.strokeStyle=col+'25';ctx.lineWidth=1;ctx.stroke();
+      ctx.save();ctx.translate(px,py);
+      ctx.beginPath();ctx.arc(0,0,9,0,Math.PI*2);ctx.fillStyle='#111';ctx.fill();
+      ctx.strokeStyle=col;ctx.lineWidth=1.2;ctx.stroke();
+      ctx.strokeStyle=col;ctx.lineWidth=1.3;ctx.lineCap='round';ctx.lineJoin='round';
+      draw(ctx,0,0,5);ctx.restore();
+    }
+    const rp=R*.6;
+    planet(c.solG,(x,cx,cy,s)=>{x.beginPath();x.arc(cx,cy,s*.45,0,Math.PI*2);x.strokeStyle='#e4c97a';x.stroke();for(let i=0;i<8;i++){const a=i*Math.PI/4;x.beginPath();x.moveTo(cx+s*.6*Math.cos(a),cy+s*.6*Math.sin(a));x.lineTo(cx+s*.95*Math.cos(a),cy+s*.95*Math.sin(a));x.stroke();}},'#e4c97a',rp);
+    planet(c.lunaG,(x,cx,cy,s)=>{x.beginPath();x.arc(cx,cy,s*.7,Math.PI*.25,Math.PI*1.75);x.strokeStyle='#b0bef0';x.stroke();x.beginPath();x.arc(cx+s*.2,cy,s*.5,Math.PI*.35,Math.PI*1.65,true);x.stroke();},'#b0bef0',rp);
+    planet(c.ascG,(x,cx,cy,s)=>{x.strokeStyle='#82d0a8';x.beginPath();x.moveTo(cx,cy-s);x.lineTo(cx-s*.55,cy+s*.65);x.lineTo(cx+s*.55,cy+s*.65);x.closePath();x.stroke();},'#82d0a8',rp);
+    ctx.beginPath();ctx.arc(cx,cy,R*.3,0,Math.PI*2);ctx.fillStyle='#0e0e0e';ctx.fill();
+    ctx.fillStyle=gold;ctx.font=`${R*.15}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('✦',cx,cy);
+    wRAF=requestAnimationFrame(frame);
+  }
+  wRAF=requestAnimationFrame(frame);
+}
+
+function resetear(){
+  document.getElementById('resultSec').style.display='none';
+  if(wRAF){cancelAnimationFrame(wRAF);wRAF=null;}
+  selLoc=null;document.getElementById('cityIn').value='';
+  document.getElementById('cityListWrap').innerHTML='';
+  document.getElementById('cityOk').style.display='none';
+  document.getElementById('fnote').textContent='';
+  Object.keys(state).forEach(k=>state[k]=null);
+  [{id:'dispDay',ph:'--'},{id:'dispMonth',ph:'--'},{id:'dispYear',ph:'----'},
+   {id:'dispHour',ph:'--'},{id:'dispMin',ph:'--'},{id:'dispAmpm',ph:'--'}].forEach(({id,ph})=>{
+    const el=document.getElementById(id);if(el){el.textContent=ph;el.classList.add('ph');}
+  });
+  document.getElementById('fSec').scrollIntoView({behavior:'smooth'});
+}
+
+/* ── ESTRELLAS ───────────────────────────────────────────────────────────── */
+(function(){
+  const c=document.getElementById('stars');
+  for(let i=0;i<80;i++){
+    const s=document.createElement('div');s.className='star';
+    const sz=Math.random()*1.3+0.3;
+    s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation:tw ${(Math.random()*3+2).toFixed(1)}s ease-in-out ${(Math.random()*5).toFixed(1)}s infinite;`;
+    c.appendChild(s);
+  }
+})();
+</script>
+</body>
+</html>

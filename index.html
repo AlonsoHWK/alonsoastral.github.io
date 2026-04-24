@@ -452,9 +452,9 @@ function calcular(){
     drawSelloCanvas('iconLuna',l.idx);
     drawSelloCanvas('iconAsc',a.idx);
     /* Mini sello en el label */
-    drawSelloCanvas('lblIconSol',s.idx,true);
-    drawSelloCanvas('lblIconLuna',l.idx,true);
-    drawSelloCanvas('lblIconAsc',a.idx,true);
+    drawPlanetIcon('lblIconSol', 'sol');
+    drawPlanetIcon('lblIconLuna', 'luna');
+    drawPlanetIcon('lblIconAsc', 'asc');
     drawWheel({solG:sg,lunaG:lg,ascG:ag});
     document.getElementById('resultSec').scrollIntoView({behavior:'smooth'});
   },120);
@@ -531,6 +531,39 @@ function resetear(){
     c.appendChild(s);
   }
 })();
+  function drawPlanetIcon(id, tipo) {
+  const cv = document.getElementById(id);
+  if (!cv) return;
+  const ctx = cv.getContext('2d'), S = cv.width, c = S / 2, r = c - 1;
+  ctx.clearRect(0, 0, S, S);
+  // Fondo y círculo
+  ctx.beginPath(); ctx.arc(c, c, r, 0, Math.PI * 2);
+  ctx.fillStyle = '#1a1a1a'; ctx.fill();
+  const colors = { sol: '#e4c97a', luna: '#b0bef0', asc: '#82d0a8' };
+  ctx.strokeStyle = colors[tipo]; ctx.lineWidth = 1.2; ctx.stroke();
+  ctx.strokeStyle = colors[tipo]; ctx.lineWidth = 1.3;
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  const s = c * 0.52;
+  if (tipo === 'sol') {
+    ctx.beginPath(); ctx.arc(c, c, s * .45, 0, Math.PI * 2); ctx.stroke();
+    for (let i = 0; i < 8; i++) {
+      const a = i * Math.PI / 4;
+      ctx.beginPath();
+      ctx.moveTo(c + s * .6 * Math.cos(a), c + s * .6 * Math.sin(a));
+      ctx.lineTo(c + s * .95 * Math.cos(a), c + s * .95 * Math.sin(a));
+      ctx.stroke();
+    }
+  } else if (tipo === 'luna') {
+    ctx.beginPath(); ctx.arc(c, c, s * .7, Math.PI * .25, Math.PI * 1.75); ctx.stroke();
+    ctx.beginPath(); ctx.arc(c + s * .2, c, s * .5, Math.PI * .35, Math.PI * 1.65, true); ctx.stroke();
+  } else if (tipo === 'asc') {
+    ctx.beginPath();
+    ctx.moveTo(c, c - s);
+    ctx.lineTo(c - s * .55, c + s * .65);
+    ctx.lineTo(c + s * .55, c + s * .65);
+    ctx.closePath(); ctx.stroke();
+  }
+}
 </script>
 </body>
 </html>

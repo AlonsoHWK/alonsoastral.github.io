@@ -330,28 +330,38 @@ const CITIES=[
   ['Dubái','Emiratos Árabes',25.2048,55.2708],['Mumbai','India',19.0760,72.8777],
 ];
 let selLoc=null;
-function buscarCiudad(){
-  const q=document.getElementById('cityIn').value.trim().toLowerCase();
-  const lw=document.getElementById('cityListWrap'),note=document.getElementById('fnote');
-  lw.innerHTML='';selLoc=null;document.getElementById('cityOk').style.display='none';
-  if(q.length<2){note.textContent='⚠ Escribe al menos 2 caracteres.';return;}
-  const hits=CITIES.filter(c=>c[0].toLowerCase().includes(q)||c[1].toLowerCase().includes(q)).slice(0,6);
-  if(!hits.length){note.textContent='⚠ Ciudad no encontrada.';return;}
-  note.textContent='';
-  const wrap=document.createElement('div');wrap.className='city-list';
-  hits.forEach(c=>{
-    const el=document.createElement('div');el.className='city-item';
-    el.textContent=`${c[0]}, ${c[1]}`;
-    el.onclick=()=>{
-      selLoc={nom:c[0],lat:c[2],lon:c[3]};
-      document.getElementById('cityIn').value=`${c[0]}, ${c[1]}`;
-      lw.innerHTML='';
-      const ok=document.getElementById('cityOk');
-      ok.textContent=`✓ ${c[0]}, ${c[1]}`;ok.style.display='block';note.textContent='';
-    };
-    wrap.appendChild(el);
-  });
-  lw.appendChild(wrap);
+function buscarCiudad() {
+  const q = document.getElementById('cityIn').value.trim();
+  const lw = document.getElementById('cityListWrap');
+  const note = document.getElementById('fnote');
+  lw.innerHTML = ''; selLoc = null;
+  document.getElementById('cityOk').style.display = 'none';
+  if (q.length < 2) { note.textContent = '⚠ Escribe al menos 2 caracteres.'; return; }
+  note.textContent = '✦ Buscando…';
+  fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=6&addressdetails=1`, {
+    headers: { 'Accept-Language': 'es' }
+  })
+  .then(r => r.json())
+  .then(data => {
+    note.textContent = '';
+    if (!data.length) { note.textContent = '⚠ No se encontró. Intenta con otro nombre.'; return; }
+    const wrap = document.createElement('div'); wrap.className = 'city-list';
+    data.forEach(p => {
+      const el = document.createElement('div'); el.className = 'city-item';
+      el.textContent = p.display_name.split(',').slice(0, 3).join(',');
+      el.onclick = () => {
+        selLoc = { nom: p.display_name.split(',')[0].trim(), lat: parseFloat(p.lat), lon: parseFloat(p.lon) };
+        document.getElementById('cityIn').value = el.textContent;
+        lw.innerHTML = '';
+        const ok = document.getElementById('cityOk');
+        ok.textContent = `✓ ${el.textContent}`; ok.style.display = 'block';
+        note.textContent = '';
+      };
+      wrap.appendChild(el);
+    });
+    lw.appendChild(wrap);
+  })
+  .catch(() => { note.textContent = '⚠ Error de conexión. Verifica tu internet.'; });
 }
 document.getElementById('cityIn').addEventListener('keydown',e=>{if(e.key==='Enter')buscarCiudad();});
 

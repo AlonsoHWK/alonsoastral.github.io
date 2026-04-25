@@ -474,9 +474,12 @@ let cartasTirada=[];
    NAVEGACIÓN
 ══════════════════════════════════════════════════════ */
 function iniciar(){
-  document.querySelector('.hero').style.display='none';
+  document.querySelector('.hero').style.minHeight='auto';
+  document.querySelector('.hero').style.padding='40px 20px 20px';
   irPaso(1);
-  window.scrollTo({top:0,behavior:'smooth'});
+  setTimeout(()=>{
+    document.getElementById('paso1').scrollIntoView({behavior:'smooth',block:'start'});
+  },100);
 }
 
 function irPaso(n){

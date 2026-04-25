@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tarot — Oráculo Astral</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;500;600&family=Raleway:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --black:#080808;--black-mid:#111;--black-soft:#1a1a1a;
+      --white:#f5f0e8;--white-dim:#c8bfa8;
+      --gold:#c9a84c;--gold-light:#e4c97a;--gold-pale:#f0dfa0;--gold-dim:#7a6230;
+      --border:rgba(201,168,76,0.18);--border-strong:rgba(201,168,76,0.5);
+      --font-display:'Cinzel',serif;--font-body:'Cormorant Garamond',serif;--font-ui:'Raleway',sans-serif;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--black);color:var(--white);font-family:var(--font-body);overflow-x:hidden;}
+    .stars{position:fixed;inset:0;pointer-events:none;z-index:0;}
+    .star{position:absolute;border-radius:50%;background:#fff;}
+    @keyframes tw{0%,100%{opacity:.05}50%{opacity:.35}}
+
+    /* ── NAV ── */
+    .nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(8,8,8,.85);backdrop-filter:blur(8px);}
+    .nav-logo{font-family:var(--font-display);font-size:13px;letter-spacing:.2em;color:var(--gold);text-decoration:none;}
+    .nav-back{font-family:var(--font-ui);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--white-dim);text-decoration:none;transition:color .2s;}
+    .nav-back:hover{color:var(--gold);}
+
+    /* ── HERO ── */
+    .hero{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:80px 20px 40px;}
+    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 40%,rgba(201,168,76,.05) 0%,transparent 70%);pointer-events:none;}
+    .hero-inner{max-width:600px;position:relative;}
+    .eyebrow{font-family:var(--font-ui);font-size:10px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin-bottom:14px;opacity:0;animation:fadeUp .8s ease .2s forwards;}
+    .h1{font-family:var(--font-display);font-size:clamp(36px,7vw,58px);font-weight:400;line-height:1.05;letter-spacing:.04em;margin-bottom:12px;opacity:0;animation:fadeUp .8s ease .4s forwards;}
+    .h1 em{font-style:italic;color:var(--gold-light);font-family:var(--font-body);}
+    .hero-sub{font-size:15px;color:var(--white-dim);font-style:italic;line-height:1.8;margin-bottom:28px;opacity:0;animation:fadeUp .8s ease .6s forwards;}
+    .hero-ring{width:120px;height:120px;margin:0 auto 24px;opacity:0;animation:fadeIn 1s ease .1s forwards;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+    /* ── MAIN CONTAINER ── */
+    .container{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:0 20px;}
+
+    /* ── STEPS ── */
+    .step{padding:48px 0;border-top:1px solid var(--border);display:none;}
+    .step.active{display:block;}
+    .step-title{font-family:var(--font-display);font-size:clamp(18px,3vw,24px);font-weight:400;letter-spacing:.06em;text-align:center;margin-bottom:6px;}
+    .step-sub{font-size:14px;color:var(--white-dim);text-align:center;font-style:italic;margin-bottom:28px;}
+
+    /* ── MAZO SELECTOR ── */
+    .mazo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:520px;margin:0 auto 24px;}
+    .mazo-btn{background:var(--black-soft);border:1px solid var(--border);padding:24px 16px;text-align:center;cursor:pointer;transition:all .25s;position:relative;}
+    .mazo-btn::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,0));transition:background .25s;}
+    .mazo-btn:hover{border-color:var(--gold);}
+    .mazo-btn:hover::before{background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+    .mazo-btn.selected{border-color:var(--gold);background:rgba(201,168,76,.06);}
+    .mazo-btn.selected::before{background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+    .mazo-num{font-family:var(--font-display);font-size:32px;color:var(--gold);display:block;margin-bottom:6px;}
+    .mazo-label{font-family:var(--font-display);font-size:13px;letter-spacing:.06em;color:var(--white);display:block;margin-bottom:4px;}
+    .mazo-desc{font-family:var(--font-ui);font-size:10px;letter-spacing:.1em;color:var(--gold-dim);text-transform:uppercase;}
+
+    /* ── TIRADA SELECTOR ── */
+    .tirada-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:600px;margin:0 auto 24px;}
+    .tirada-btn{background:var(--black-soft);border:1px solid var(--border);padding:18px 10px;text-align:center;cursor:pointer;transition:all .25s;}
+    .tirada-btn:hover{border-color:var(--gold);}
+    .tirada-btn.selected{border-color:var(--gold);background:rgba(201,168,76,.06);}
+    .tirada-num{font-family:var(--font-display);font-size:28px;color:var(--gold);display:block;margin-bottom:4px;}
+    .tirada-label{font-family:var(--font-ui);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--white-dim);}
+
+    /* ── PREGUNTA ── */
+    .pregunta-wrap{max-width:520px;margin:0 auto;}
+    .pregunta-input{width:100%;background:var(--black-mid);border:1px solid var(--border);border-top-color:var(--border-strong);color:var(--white);font-family:var(--font-body);font-style:italic;font-size:18px;padding:14px 16px;outline:none;transition:border-color .25s;resize:none;min-height:90px;}
+    .pregunta-input:focus{border-color:var(--gold);}
+    .pregunta-input::placeholder{color:rgba(245,240,232,.2);}
+
+    /* ── CORTE DEL MAZO ── */
+    .corte-wrap{max-width:480px;margin:0 auto;text-align:center;}
+    .deck-visual{width:160px;height:220px;margin:0 auto 28px;position:relative;cursor:pointer;}
+    .deck-card{position:absolute;width:100%;height:100%;border:1px solid var(--border-strong);background:var(--black-soft);transition:transform .3s;}
+    .deck-card:nth-child(1){transform:translate(-6px,-4px) rotate(-2deg);}
+    .deck-card:nth-child(2){transform:translate(3px,-2px) rotate(1deg);}
+    .deck-card:nth-child(3){transform:translate(0,0);}
+    .deck-card canvas{width:100%;height:100%;}
+    .deck-visual:hover .deck-card:nth-child(1){transform:translate(-14px,-8px) rotate(-4deg);}
+    .deck-visual:hover .deck-card:nth-child(2){transform:translate(8px,-4px) rotate(3deg);}
+    .corte-slider{width:100%;appearance:none;-webkit-appearance:none;height:2px;background:linear-gradient(90deg,var(--gold) var(--pct,50%),rgba(201,168,76,.2) var(--pct,50%));outline:none;margin:16px 0 8px;cursor:pointer;}
+    .corte-slider::-webkit-slider-thumb{appearance:none;width:18px;height:18px;border-radius:50%;background:var(--gold);cursor:pointer;border:2px solid var(--black);}
+    .corte-slider::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--gold);cursor:pointer;border:2px solid var(--black);}
+    .corte-hint{font-family:var(--font-ui);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold-dim);}
+    .corte-val{font-family:var(--font-display);font-size:22px;color:var(--gold);margin:8px 0;}
+
+    /* ── BOTONES ── */
+    .btn-gold{display:inline-block;font-family:var(--font-ui);font-size:11px;letter-spacing:.25em;text-transform:uppercase;background:var(--gold);color:var(--black);padding:12px 32px;border:none;cursor:pointer;transition:all .25s;margin-top:16px;}
+    .btn-gold:hover{background:var(--gold-light);}
+    .btn-gold:disabled{opacity:.4;cursor:not-allowed;}
+    .btn-outline{display:inline-block;font-family:var(--font-ui);font-size:11px;letter-spacing:.25em;text-transform:uppercase;background:transparent;color:var(--gold);padding:11px 32px;border:1px solid var(--gold);cursor:pointer;transition:all .25s;margin-top:16px;}
+    .btn-outline:hover{background:var(--gold);color:var(--black);}
+    .btn-center{text-align:center;margin-top:8px;}
+
+    /* ── CARTAS ── */
+    .cartas-header{text-align:center;margin-bottom:32px;}
+    .pregunta-display{font-family:var(--font-body);font-style:italic;font-size:16px;color:var(--white-dim);margin-top:8px;padding:10px 16px;border-left:2px solid rgba(201,168,76,.3);}
+    .cartas-grid{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:40px;}
+
+    /* Carta individual */
+    .carta-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;flex:0 0 auto;}
+    .carta-pos-label{font-family:var(--font-ui);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-dim);}
+    .carta-flip{width:130px;height:210px;perspective:800px;cursor:pointer;}
+    .carta-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.4,0,.2,1);}
+    .carta-inner.flipped{transform:rotateY(180deg);}
+    .carta-front,.carta-back{position:absolute;width:100%;height:100%;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid var(--border-strong);}
+    .carta-back{background:var(--black-soft);display:flex;align-items:center;justify-content:center;}
+    .carta-back-inner{width:90%;height:90%;border:1px solid rgba(201,168,76,.15);display:flex;align-items:center;justify-content:center;}
+    .carta-front{transform:rotateY(180deg);background:var(--black-soft);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:12px 8px 10px;}
+    .carta-front::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+    .carta-numero{font-family:var(--font-display);font-size:11px;letter-spacing:.15em;color:var(--gold-dim);}
+    .carta-nombre{font-family:var(--font-display);font-size:11px;font-weight:500;letter-spacing:.06em;color:var(--white);text-align:center;line-height:1.3;}
+    .carta-palo{font-family:var(--font-ui);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-dim);}
+    .carta-invertida-badge{font-family:var(--font-ui);font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:rgba(201,168,76,.5);margin-top:2px;}
+
+    /* Interpretación */
+    .interpretaciones{display:grid;gap:14px;margin-bottom:32px;}
+    .interp-card{background:var(--black-soft);border:1px solid var(--border);padding:20px 22px;position:relative;}
+    .interp-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);}
+    .interp-header{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+    .interp-canvas{flex-shrink:0;}
+    .interp-meta{flex:1;}
+    .interp-pos{font-family:var(--font-ui);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:2px;}
+    .interp-name{font-family:var(--font-display);font-size:16px;color:var(--white);letter-spacing:.05em;}
+    .interp-inv{font-family:var(--font-ui);font-size:9px;letter-spacing:.1em;color:rgba(201,168,76,.45);text-transform:uppercase;margin-top:2px;}
+    .interp-text{font-family:var(--font-body);font-size:15px;color:var(--white-dim);line-height:1.85;font-style:italic;}
+
+    .sintesis-card{background:var(--black-soft);border:1px solid var(--border);padding:24px 26px;text-align:center;position:relative;margin-bottom:24px;}
+    .sintesis-card::before,.sintesis-card::after{content:'';position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);}
+    .sintesis-card::before{top:0}.sintesis-card::after{bottom:0}
+    .sintesis-title{font-family:var(--font-display);font-size:13px;letter-spacing:.1em;color:var(--gold);margin-bottom:10px;}
+    .sintesis-text{font-family:var(--font-body);font-size:15px;font-style:italic;color:var(--white-dim);line-height:2;}
+
+    .footer{text-align:center;padding:28px;border-top:1px solid var(--border);position:relative;z-index:1;}
+    .footer p{font-family:var(--font-display);font-size:12px;color:var(--gold);letter-spacing:.1em;}
+    .footer-sub{font-family:var(--font-ui);font-size:10px;color:var(--gold-dim);letter-spacing:.18em;text-transform:uppercase;margin-top:4px;}
+
+    @media(max-width:600px){
+      .mazo-grid{grid-template-columns:1fr;}
+      .tirada-grid{grid-template-columns:1fr 1fr 1fr;}
+      .carta-flip{width:100px;height:162px;}
+      .cartas-grid{gap:10px;}
+    }
+  </style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="nav-logo" href="../">✦ Oráculo Astral</a>
+  <a class="nav-back" href="../">← Carta Astral</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <canvas class="hero-ring" id="heroRing" width="120" height="120"></canvas>
+    <p class="eyebrow">✦ Oráculo del Tarot ✦</p>
+    <h1 class="h1">Las Cartas<br><em>Hablan</em></h1>
+    <p class="hero-sub">El tarot no predice el futuro — revela las energías que<br>ya están en movimiento en tu vida.</p>
+    <button class="btn-gold" onclick="iniciar()">Comenzar la consulta</button>
+  </div>
+</section>
+
+<!-- CONSULTA -->
+<div class="container">
+
+  <!-- PASO 1: MAZO -->
+  <section class="step" id="paso1">
+    <h2 class="step-title">Elige tu Mazo</h2>
+    <p class="step-sub">Los Arcanos Mayores hablan del alma. Los Menores, del día a día.</p>
+    <div class="mazo-grid">
+      <div class="mazo-btn" id="mazo22" onclick="elegirMazo(22)">
+        <span class="mazo-num">22</span>
+        <span class="mazo-label">Arcanos Mayores</span>
+        <span class="mazo-desc">El viaje del alma</span>
+      </div>
+      <div class="mazo-btn" id="mazo78" onclick="elegirMazo(78)">
+        <span class="mazo-num">78</span>
+        <span class="mazo-label">Mazo Completo</span>
+        <span class="mazo-desc">Mayores + Menores</span>
+      </div>
+    </div>
+    <div class="btn-center"><button class="btn-gold" onclick="irPaso(2)" id="btnMazo" disabled>Continuar →</button></div>
+  </section>
+
+  <!-- PASO 2: TIRADA -->
+  <section class="step" id="paso2">
+    <h2 class="step-title">¿Cuántas cartas?</h2>
+    <p class="step-sub">Cada número de cartas revela una dimensión distinta de tu consulta.</p>
+    <div class="tirada-grid">
+      <div class="tirada-btn" id="t1" onclick="elegirTirada(1)">
+        <span class="tirada-num">1</span>
+        <span class="tirada-label">Carta del día</span>
+      </div>
+      <div class="tirada-btn" id="t3" onclick="elegirTirada(3)">
+        <span class="tirada-num">3</span>
+        <span class="tirada-label">Pasado · Presente · Futuro</span>
+      </div>
+      <div class="tirada-btn" id="t5" onclick="elegirTirada(5)">
+        <span class="tirada-num">5</span>
+        <span class="tirada-label">Cruz del destino</span>
+      </div>
+    </div>
+    <div class="btn-center"><button class="btn-gold" onclick="irPaso(3)" id="btnTirada" disabled>Continuar →</button></div>
+  </section>
+
+  <!-- PASO 3: PREGUNTA -->
+  <section class="step" id="paso3">
+    <h2 class="step-title">Tu Pregunta</h2>
+    <p class="step-sub">Formula tu consulta con claridad. Cuanto más específica, más reveladora.</p>
+    <div class="pregunta-wrap">
+      <textarea class="pregunta-input" id="preguntaInput" placeholder="¿Qué deseas consultar a las cartas hoy…?" maxlength="200"></textarea>
+      <div class="btn-center"><button class="btn-gold" onclick="irPaso(4)">Continuar →</button></div>
+    </div>
+  </section>
+
+  <!-- PASO 4: CORTE DEL MAZO -->
+  <section class="step" id="paso4">
+    <h2 class="step-title">Corta el Mazo</h2>
+    <p class="step-sub">Desliza el corte donde tu intuición lo indique. Este gesto es tuyo.</p>
+    <div class="corte-wrap">
+      <div class="deck-visual" id="deckVisual">
+        <div class="deck-card"><canvas id="deckCanvas1" width="160" height="220"></canvas></div>
+        <div class="deck-card"><canvas id="deckCanvas2" width="160" height="220"></canvas></div>
+        <div class="deck-card"><canvas id="deckCanvas3" width="160" height="220"></canvas></div>
+      </div>
+      <p class="corte-hint">Posición del corte</p>
+      <input type="range" class="corte-slider" id="corteSlider" min="1" max="100" value="50" oninput="actualizarCorte(this.value)"/>
+      <div class="corte-val" id="corteVal">50</div>
+      <p class="corte-hint">carta de <span id="corteTotalLabel">22</span></p>
+      <div class="btn-center"><button class="btn-gold" onclick="revelarCartas()">Revelar las Cartas ✦</button></div>
+    </div>
+  </section>
+
+  <!-- PASO 5: RESULTADO -->
+  <section class="step" id="paso5">
+    <div class="cartas-header">
+      <p style="font-family:var(--font-ui);font-size:10px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin-bottom:8px;">✦ Tu Tirada ✦</p>
+      <h2 style="font-family:var(--font-display);font-size:20px;font-weight:400;letter-spacing:.05em;" id="tiradaTitle">Las Cartas</h2>
+      <div class="pregunta-display" id="preguntaDisplay"></div>
+    </div>
+    <div class="cartas-grid" id="cartasGrid"></div>
+    <div class="interpretaciones" id="interpretaciones"></div>
+    <div class="sintesis-card">
+      <div class="sintesis-title">✦ Mensaje del Oráculo</div>
+      <p class="sintesis-text" id="sintesisText"></p>
+    </div>
+    <div class="btn-center">
+      <button class="btn-outline" onclick="nuevaConsulta()">Nueva Consulta</button>
+    </div>
+  </section>
+
+</div>
+
+<footer class="footer">
+  <p>✦ Oráculo Astral ✦</p>
+  <p class="footer-sub">El tarot como espejo del alma</p>
+</footer>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   DATOS DEL TAROT
+══════════════════════════════════════════════════════ */
+const ARCANOS_MAYORES = [
+  { id:0,  num:'0',    nombre:'El Loco',           palo:'Mayor',
+    desc_d:'El Loco representa el inicio absoluto, el salto hacia lo desconocido con el corazón abierto. Es la energía del viajero que parte sin mapa, confiando en que el camino se irá revelando bajo sus pies. Habla de libertad, de potencial sin forma, de la valentía que no nace del conocimiento sino de la fe pura. Cuando aparece, algo nuevo y completamente inesperado está por comenzar en tu vida.',
+    desc_i:'Invertido, El Loco advierte sobre imprudencia sin límites, decisiones precipitadas que no consideran las consecuencias. La energía libre se convierte en caos. Es momento de detenerse y reflexionar antes de saltar.' },
+  { id:1,  num:'I',    nombre:'El Mago',            palo:'Mayor',
+    desc_d:'El Mago posee todos los elementos sobre su mesa: fuego, agua, tierra y aire. Su mensaje es claro — tienes todo lo que necesitas para crear la realidad que deseas. No te falta herramienta, te falta voluntad de usarlas. Es la carta de la manifestación consciente, del poder de la intención dirigida con precisión.',
+    desc_i:'Invertido señala que los talentos están siendo desperdiciados o mal usados. Puede indicar engaño, manipulación o una potencia creativa que se dispersa sin foco.' },
+  { id:2,  num:'II',   nombre:'La Sacerdotisa',     palo:'Mayor',
+    desc_d:'La Sacerdotisa guarda los misterios que no pueden expresarse con palabras. Representa el conocimiento intuitivo, el mundo interior, los sueños y el inconsciente. Su aparición invita a confiar en lo que sientes más allá de lo que puedes probar. La respuesta que buscas ya la sabes — solo debes escuchar en silencio.',
+    desc_i:'Invertida indica que el conocimiento interior está bloqueado, que se está ignorando la intuición en favor de la razón. Secretos ocultos o información que no está llegando.' },
+  { id:3,  num:'III',  nombre:'La Emperatriz',      palo:'Mayor',
+    desc_d:'La Emperatriz es la fuerza creadora de la naturaleza en su forma más plena. Representa la fertilidad, la abundancia, la belleza y el cuidado nutricio. Es la energía que hace que todo crezca, que convierte la semilla en fruto. Habla de creatividad desbordante, de proyectos que maduran, de relaciones que florecen.',
+    desc_i:'Invertida puede señalar bloqueo creativo, exceso de dependencia, o una relación con la abundancia que está distorsionada. El cuidado se convierte en control.' },
+  { id:4,  num:'IV',   nombre:'El Emperador',       palo:'Mayor',
+    desc_d:'El Emperador representa la estructura, la autoridad y el poder que construye civilizaciones. Es la voluntad organizada al servicio del orden. Su presencia habla de estabilidad, de liderazgo maduro, de la capacidad de establecer límites y hacer que las cosas funcionen con eficiencia. Es el padre arquetípico en su expresión más constructiva.',
+    desc_i:'Invertido señala abuso de poder, rigidez excesiva o una figura de autoridad que oprime en lugar de proteger. También puede indicar dificultad para ejercer la propia autoridad.' },
+  { id:5,  num:'V',    nombre:'El Hierofante',      palo:'Mayor',
+    desc_d:'El Hierofante es el puente entre lo sagrado y lo humano. Representa las tradiciones espirituales, las instituciones, el conocimiento transmitido a través de generaciones. Su aparición sugiere que hay sabiduría en los caminos establecidos, que buscar un maestro o una comunidad puede ser parte del camino.',
+    desc_i:'Invertido cuestiona las tradiciones, invita a romper con el dogma y encontrar la propia espiritualidad. También puede indicar conformismo o hipocresía institucional.' },
+  { id:6,  num:'VI',   nombre:'Los Enamorados',     palo:'Mayor',
+    desc_d:'Los Enamorados no hablan solo del amor romántico — hablan de la elección que define quién eres. Es la encrucijada donde debes elegir entre dos caminos, dos valores, dos versiones de ti mismo. La carta pide que la decisión se tome desde el corazón, no desde el miedo o la conveniencia.',
+    desc_i:'Invertida señala conflicto interno, decisiones postergadas, o una elección que se está haciendo desde el miedo. Puede indicar desalineación entre los valores y las acciones.' },
+  { id:7,  num:'VII',  nombre:'El Carro',           palo:'Mayor',
+    desc_d:'El Carro es la voluntad en movimiento, la determinación que vence los obstáculos internos y externos. Representa el control de las fuerzas opuestas — la razón y la emoción — tirando en la misma dirección. Es la victoria que se alcanza no por fuerza bruta sino por disciplina y enfoque sostenido.',
+    desc_i:'Invertido indica pérdida de control, dirección dispersa, o una victoria que se aleja. Las fuerzas internas están en conflicto y el carro avanza en zigzag.' },
+  { id:8,  num:'VIII', nombre:'La Fuerza',          palo:'Mayor',
+    desc_d:'La Fuerza muestra a una mujer que domina a un león no con cadenas sino con amor. Es el poder que nace de la compasión, la valentía que no necesita violencia, la confianza que doma lo instintivo sin reprimirlo. Habla de una fortaleza interior que a veces es más poderosa que cualquier fuerza física.',
+    desc_i:'Invertida indica que la fuerza interior está debilitada, que hay dudas profundas sobre la propia capacidad. También puede señalar que el instinto está siendo ignorado o que hay una lucha interna que está agotando.' },
+  { id:9,  num:'IX',   nombre:'El Ermitaño',        palo:'Mayor',
+    desc_d:'El Ermitaño ha subido a la montaña no para alejarse del mundo sino para encontrar la luz que pueda llevar de vuelta. Representa el retiro consciente, la búsqueda interior profunda, la sabiduría que solo surge en el silencio. Cuando aparece, es tiempo de mirar hacia adentro antes de mirar hacia afuera.',
+    desc_i:'Invertido señala aislamiento que se convierte en soledad no elegida, o una retirada que no está produciendo los frutos esperados. También puede indicar que se está rechazando la ayuda o la conexión que se necesita.' },
+  { id:10, num:'X',    nombre:'La Rueda de la Fortuna', palo:'Mayor',
+    desc_d:'La Rueda gira siempre, y ese es su mensaje más profundo. Lo que estás viviendo es parte de un ciclo más grande del que no eres el único protagonista. Los cambios que llegan no son castigos ni recompensas — son el ritmo natural de la vida. Aprende a moverte con la rueda en lugar de resistirla.',
+    desc_i:'Invertida sugiere resistencia al cambio, mala suerte que se prolonga por no adaptarse, o la sensación de estar atrapado en un ciclo que no avanza.' },
+  { id:11, num:'XI',   nombre:'La Justicia',        palo:'Mayor',
+    desc_d:'La Justicia sostiene su balanza con mano firme. No es la justicia humana que a veces falla — es la ley de causa y efecto, la certeza de que cada acción tiene su consecuencia. Su aparición habla de decisiones que deben tomarse con imparcialidad, de verdades que deben ser dichas, de equilibrio que debe ser restaurado.',
+    desc_i:'Invertida indica desequilibrio, injusticia que no está siendo corregida, o una decisión que se está tomando de forma sesgada. También puede señalar que se están evitando las consecuencias de las propias acciones.' },
+  { id:12, num:'XII',  nombre:'El Colgado',         palo:'Mayor',
+    desc_d:'El Colgado está suspendido de un pie, pero su expresión es serena. Ha elegido este punto de vista diferente, esta pausa obligada que en realidad es una iniciación. Representa el sacrificio voluntario de una perspectiva para ganar una comprensión más profunda. Lo que parece una parálisis es en realidad una transformación.',
+    desc_i:'Invertido señala martirio sin propósito, sacrificios que no llevan a ningún aprendizaje, o resistencia a la pausa necesaria. También puede indicar postergación crónica.' },
+  { id:13, num:'XIII', nombre:'La Muerte',          palo:'Mayor',
+    desc_d:'La Muerte raramente habla de muerte física — habla de transformación radical e irreversible. Algo está terminando para que algo nuevo pueda nacer. No puedes llevar el pasado al futuro que se acerca. Esta carta pide soltar con gracia lo que ya cumplió su ciclo, confiando en que el vacío que queda no es pérdida sino espacio.',
+    desc_i:'Invertida indica resistencia al cambio inevitable, aferrarse a lo que ya murió, o una transformación que se está bloqueando por miedo. El estancamiento se prolonga.' },
+  { id:14, num:'XIV',  nombre:'La Templanza',       palo:'Mayor',
+    desc_d:'La Templanza vierte agua entre dos copas sin derramar una gota. Es el arte del equilibrio dinámico, la alquimia que transforma los opuestos en armonía. Habla de paciencia, de moderación, de la sabiduría que sabe cuánto de cada cosa es necesario. Es la carta del maestro que trabaja con lo que tiene, sin prisa y sin pausa.',
+    desc_i:'Invertida señala desequilibrio, excesos, impaciencia que interrumpe un proceso que necesitaba más tiempo. También puede indicar conflicto entre dos partes de uno mismo.' },
+  { id:15, num:'XV',   nombre:'El Diablo',          palo:'Mayor',
+    desc_d:'El Diablo muestra a dos figuras encadenadas, pero las cadenas son tan holgadas que podrían quitárselas. Representa las cadenas que nos hemos puesto nosotros mismos: adicciones, creencias limitantes, apegos que se han vuelto prisiones. Su mensaje no es de condena sino de conciencia — si ves tus cadenas, puedes soltarlas.',
+    desc_i:'Invertido señala el inicio de la liberación, el momento en que se toma conciencia de un patrón que había estado operando en la sombra. También puede indicar dependencias que se están agravando.' },
+  { id:16, num:'XVI',  nombre:'La Torre',           palo:'Mayor',
+    desc_d:'La Torre es la carta más temida y a la vez la más liberadora. Representa la destrucción repentina de lo que se había construido sobre bases falsas. Lo que cae era necesario que cayera. El relámpago que destruye la torre también ilumina la oscuridad. Después de la Torre, el terreno queda limpio para una construcción verdadera.',
+    desc_i:'Invertida indica que la crisis se está evitando o retrasando, pero sus consecuencias siguen acumulándose. También puede señalar que el colapso fue más suave de lo esperado y que hay posibilidad de reconstrucción.' },
+  { id:17, num:'XVII', nombre:'La Estrella',        palo:'Mayor',
+    desc_d:'La Estrella aparece después de la tormenta, derramando agua sobre la tierra reseca. Es la esperanza que no es ilusión sino certeza serena — la confianza de que el universo está en orden y que tú tienes un lugar en él. Habla de renovación, de fe restaurada, de la capacidad de soñar de nuevo después de haber sufrido.',
+    desc_i:'Invertida señala desesperanza, pérdida de fe, o una visión del futuro que se ha vuelto oscura. También puede indicar que se está esperando que el cambio llegue solo, sin participación activa.' },
+  { id:18, num:'XVIII',nombre:'La Luna',            palo:'Mayor',
+    desc_d:'La Luna ilumina sin revelar completamente. Representa el territorio de lo inconsciente, los miedos que operan en la sombra, las ilusiones que se confunden con realidad. Cuando aparece, algo no es lo que parece. Hay emociones que piden ser reconocidas, verdades que se están distorsionando, intuiciones que deben ser escuchadas con cuidado.',
+    desc_i:'Invertida sugiere que los miedos inconscientes están comenzando a salir a la luz, o que una confusión se está aclarando. También puede indicar que el autoengaño está disminuyendo.' },
+  { id:19, num:'XIX',  nombre:'El Sol',             palo:'Mayor',
+    desc_d:'El Sol es la carta de la claridad absoluta, de la alegría sin sombras, del éxito que no necesita justificación. Representa la infancia del alma que recuerda cómo estar presente sin calcular. Cuando aparece, lo que está viniendo es bueno. Hay luz, hay energía, hay una vitalidad que se puede compartir sin agotarse.',
+    desc_i:'Invertido no es negativo — solo indica que la energía solar está un poco velada. El optimismo puede estar costando más esfuerzo del habitual, o la alegría llega con cierta demora.' },
+  { id:20, num:'XX',   nombre:'El Juicio',          palo:'Mayor',
+    desc_d:'El Juicio muestra figuras que se elevan de sus tumbas al llamado de una trompeta. Es el momento del despertar, de la llamada que no puedes ignorar más, de la rendición de cuentas con uno mismo. Habla de una transformación profunda que surge desde el interior, de una segunda oportunidad que el universo ofrece para vivir de acuerdo a quien realmente eres.',
+    desc_i:'Invertido indica resistencia al llamado interior, autoperdón que no llega, o una tendencia a juzgarse con demasiada dureza. También puede señalar que se está ignorando una voz interna importante.' },
+  { id:21, num:'XXI',  nombre:'El Mundo',           palo:'Mayor',
+    desc_d:'El Mundo es la carta de la completitud, del ciclo cerrado en su totalidad, del viajero que ha llegado. Representa el logro de una integración profunda, el momento en que todas las partes de uno mismo danzan en armonía. Es el éxito más verdadero — no el que el mundo ve, sino el que sientes cuando finalmente sabes quién eres.',
+    desc_i:'Invertido indica que la completitud está cerca pero aún no se ha alcanzado. Puede señalar que falta el último paso, o que el éxito está siendo saboteado en el momento de la llegada.' },
+];
+
+const PALOS = ['Oros','Copas','Espadas','Bastos'];
+const VALORES = ['As','2','3','4','5','6','7','8','9','10','Sota','Caballero','Reina','Rey'];
+
+function generarArcanosMenores(){
+  const menores=[];
+  PALOS.forEach(palo=>{
+    VALORES.forEach(val=>{
+      menores.push({
+        id:menores.length+22,num:val,nombre:`${val} de ${palo}`,palo,
+        desc_d:descMenorD(val,palo),desc_i:descMenorI(val,palo)
+      });
+    });
+  });
+  return menores;
+}
+
+function descMenorD(val,palo){
+  const energias={
+    'Oros':'materialidad, trabajo y prosperidad concreta',
+    'Copas':'emociones, relaciones y el mundo interior',
+    'Espadas':'pensamiento, conflicto y la verdad que corta',
+    'Bastos':'fuego creativo, acción y ambición'
+  };
+  const vals={
+    'As':'un nuevo comienzo poderoso en el área de',
+    '2':'una decisión o balance en el terreno de',
+    '3':'colaboración y primeros frutos en',
+    '4':'estabilidad y consolidación en',
+    '5':'desafío y conflicto que fortalece en',
+    '6':'armonía y fluidez renovada en',
+    '7':'perseverancia y evaluación en',
+    '8':'movimiento rápido y cambio en',
+    '9':'casi en la meta, resistencia final en',
+    '10':'culminación y plenitud o carga en',
+    'Sota':'mensaje fresco y aprendizaje en',
+    'Caballero':'acción decidida y movimiento en',
+    'Reina':'maestría madura y receptiva en',
+    'Rey':'autoridad plena y dominio de'
+  };
+  return `Esta carta trae la energía de ${vals[val]||'expresión en'} ${energias[palo]||palo}. Su presencia indica que esta dimensión de tu vida está activa y merece atención consciente. Observa qué aspectos de esta área están pidiendo ser reconocidos o transformados.`;
+}
+function descMenorI(val,palo){
+  return `Invertida, esta carta sugiere un bloqueo o desequilibrio en el área de ${palo.toLowerCase()}. La energía está presente pero no fluye con facilidad. Puede ser momento de revisar qué resistencias internas están impidiendo el movimiento natural en esta dimensión de tu experiencia.`;
+}
+
+const MAZO_22 = [...ARCANOS_MAYORES];
+const MAZO_78 = [...ARCANOS_MAYORES, ...generarArcanosMenores()];
+
+/* ══════════════════════════════════════════════════════
+   GLIFOS — Sello Antiguo
+══════════════════════════════════════════════════════ */
+function drawSello(ctx,cx,cy,r,drawFn,bright){
+  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.fillStyle='#1a1a1a';ctx.fill();
+  ctx.strokeStyle=bright?'#c9a84c':'rgba(201,168,76,0.4)';
+  ctx.lineWidth=Math.max(0.8,r*0.08);ctx.stroke();
+  ctx.strokeStyle=bright?'#e4c97a':'rgba(228,201,122,0.55)';
+  ctx.lineWidth=Math.max(0.9,r*0.1);ctx.lineCap='round';ctx.lineJoin='round';
+  drawFn(ctx,cx,cy,r*0.55);
+}
+
+// Glifos de los 22 Arcanos Mayores
+const GLIFOS_MAYORES = [
+  // 0 El Loco — espiral abierta
+  (x,cx,cy,s)=>{x.beginPath();let a=0;for(let i=0;i<60;i++){const r=s*(0.1+i/60*.9),nx=cx+r*Math.cos(a),ny=cy+r*Math.sin(a);i===0?x.moveTo(nx,ny):x.lineTo(nx,ny);a+=0.22;}x.stroke();x.beginPath();x.arc(cx+s*.6,cy-s*.6,s*.12,0,Math.PI*2);x.stroke();},
+  // I El Mago — varita con infinito
+  (x,cx,cy,s)=>{x.beginPath();x.moveTo(cx,cy-s);x.lineTo(cx,cy+s*.3);x.stroke();x.beginPath();let t=0;for(let i=0;i<=60;i++){const p=i/60*Math.PI*2,lx=cx+s*.45*Math.cos(p)/(1+Math.sin(p)*Math.sin(p)),ly=cy-s*.4+s*.3*Math.sin(p)*Math.cos(p)/(1+Math.sin(p)*Math.sin(p));i===0?x.moveTo(lx,ly):x.lineTo(lx,ly);}x.stroke();},
+  // II La Sacerdotisa — luna creciente
+  (x,cx,cy,s)=>{x.beginPath();x.arc(cx,cy,s*.7,Math.PI*.25,Math.PI*1.75);x.stroke();x.beginPath();x.arc(cx+s*.3,cy,s*.5,Math.PI*.35,Math.PI*1.65,true);x.stroke();x.beginPath();x.moveTo(cx-s*.2,cy+s*.85);x.lineTo(cx+s*.2,cy+s*.85);x.stroke();},
+  // III La Emperatriz — Venus
+  (x,cx,cy,s)=>{x.beginPath();x.arc(cx,cy-s*.2,s*.5,0,Math.PI*2);x.stroke();x.beginPath();x.moveTo(cx,cy+s*.3);x.lineTo(cx,cy+s*.9);x.moveTo(cx-s*.35,cy+s*.6);x.lineTo(cx+s*.35,cy+s*.6);x.stroke();},
+  // IV El Emperador — cuadrado con cruz
+  (x,cx,cy,s)=>{x.beginPath();x.rect(cx-s*.55,cy-s*.55,s*1.1,s*1.1);x.stroke();x.beginPath();x.moveTo(cx,cy-s*.55);x.lineTo(cx,cy+s*.55);x.moveTo(cx-s*.55,cy);x.lineTo(cx+s*.55,cy);x.stroke();},
+  // V El Hierofante — llave
+  (x,cx,cy,s)=>{x.beginPath();x.arc(cx,cy-s*.3,s*.4,0,Math.PI*2);x.stroke();x.beginPath();x.moveTo(cx,cy+s*.1);x.lineTo(cx,cy+s*.9);x.moveTo(cx-s*.2,cy+s*.5);x.lineTo(cx+s*.2,cy+s*.5);x.moveTo(cx,cy+s*.75);x.lineTo(cx+s*.2,cy+s*.75);x.stroke();},
+  // VI Los Enamorados — dos círculos unidos
+  (x,cx,cy,s)=>{x.beginPath();x.arc(cx-s*.3,cy+s*.1,s*.42,0,Math.PI*2);x.stroke();x.beginPath();x.arc(cx+s*.3,cy+s*.1,s*.42,0,Math.PI*2);x.stroke();x.beginPath();x.moveTo(cx,cy-s*.9);x.lineTo(cx-s*.15,cy-s*.5);x.lineTo(cx+s*.15,cy-s*.5);x.closePath();x.stroke();},
+  // VII El Carro — escudo con estrella
+  (x,cx,cy,s)=>{x.beginPath();x.moveTo(cx,cy-s*.9);x.lineTo(cx+s*.7,cy-s*.3);x.lineTo(cx+s*.55,cy+s*.7);x.lineTo(cx-s*.55,cy+s*.7);x.lineTo(cx-s*.7,cy-s*.3);x.closePath();x.stroke();x.beginPath();x.arc(cx,cy+s*.05,s*.22,0,Math.PI*2);x.stroke();},
+  // VIII La Fuerza — lemniscata sobre círculo
+  (x,cx,cy,s)=>{x.beginPath();x.arc(cx,cy+s*.2,s*.55,0,Math.PI*2);x.stroke();let a=0;x.beginPath();for(let i=0;i<=60;i++){const p=i/60*Math.PI*2,lx=cx+s*.4*Math.cos(p)/(1+Math.sin(p)*Math.sin(p)),ly=cy-s*.55+s*.28*Math.sin(p)*Math.cos(p)/(1+Math.sin(p)*Math.sin(p));i===0?x.moveTo(lx,ly):x.lineTo(lx,ly);}x.stroke();},
+  // IX El Ermitaño — linterna con bastón
+  (x,cx,cy,s)=>{x.beginPath();x.moveTo(cx-s*.2,cy-s*.9);x.lineTo(cx+s*.2,cy-s*.9);x.lineTo(cx+s*.25,cy-s*.4);x.lineTo(cx-s*.25,cy-s*.4);x.closePath();x.stroke();x.beginPath();x.moveTo(cx,cy-s*.4);x.lineTo(cx,cy+s*.1);x.stroke();x.beginPath();x.moveTo(cx-s*.5,cy+s*.1);x.lineTo(cx+s*.5,cy+s*.1);x.lineTo(cx+s*.3,cy+s*.9);x.lineTo(cx-s*.3,cy+s*.9);x.closePath();x.stroke();},
+  // X La Rueda — rueda con radios
+  (x,cx,cy,s)=>{x.beginPath();x.arc(cx,cy,s*.7,0,Math.PI*2);x.stroke();x.beginPath();x.arc(cx,cy,s*.25,0,Math.PI*2);x.stroke();for(let i=0;i<8;i++){const a=i*Math.PI/4;x.beginPath();x.moveTo(cx+s*.25*Math.cos(a),cy+s*.25*Math.sin(a));x.lineTo(cx+s*.7*Math.cos(a),cy+s*.7*Math.sin(a));x.stroke();}},
+  // XI La Justicia — balanza
+  (x,cx,cy,s)=>{x.beginPath();x.moveTo(cx,cy-s*.9);x.lineTo(cx,cy+s*.9);x.stroke();x.beginPath();x.moveTo(cx-s*.7,cy-s*.5);x.lineTo(cx+s*.7,cy-s*.5);x.stroke();x.beginPath();x.arc(cx-s*.5,cy-s*.2,s*.28,0,Math.PI);x.stroke();x.beginPath();x.arc(cx+s*.5,cy-s*.2,s*.28,0,Math.PI);x.stroke();x.beginPath();x.moveTo(cx-s*.25,cy+s*.9);x.lineTo(cx+s*.25,cy+s*.9);x.stroke();},
+  // XII El Colgado — figura invertida
+  (x,cx,cy,s)=>{x.beginPath();x.moveTo(cx-s*.5,cy-s*.9);x.lineTo(cx+s*.5,cy-s*.9);x.stroke();x.beginPath();x.moveTo(cx,cy-s*.9);x.lineTo(cx,cy-s*.4);x.stroke();x.beginPath();x.arc(cx,cy-s*.1,s*.3,0,Math.PI*2);x.stroke();x.beginPath();x.moveTo(cx-s*.3,cy+s*.2);x.lineTo(cx,cy-s*.1+s*.3);x.lineTo(cx+s*.3,cy+s*.2);x.stroke();},
+  // XIII La Muerte — guadaña
+  (x,cx,cy,s)=>{x.beginPath();x.moveTo(cx,cy+s*.9);x.lineTo(cx,cy-s*.3);x.stroke();x.beginPath();x.moveTo(cx,cy-s*.3);x.bezierCurveTo(cx+s*.8,cy-s*.3,cx+s*.8,cy-s*.9,cx,cy-s*.9);x.stroke();x.beginPath();x.moveTo(cx,cy-s*.9);x.bezierCurveTo(cx+s*.3,cy-s*.7,cx+s*.3,cy-s*.5,cx,cy-s*.3);x.stroke();},
+  // XIV La Templanza — dos triángulos
+  (x,cx,cy,s)=>{x.beginPath();x.moveTo(cx,cy-s*.9);x.lineTo(cx+s*.7,cy+s*.3);x.lineTo(cx-s*.7,cy+s*.3);x.closePath();x.stroke();x.beginPath();x.moveTo(cx,cy+s*.9);x.lineTo(cx+s*.7,cy-s*.3);x.lineTo(cx-s*.7,cy-s*.3);x.closePath();x.stroke();},
+  // XV El Diablo — tridente
+  (x,cx,cy,s)=>{x.beginPath();x.moveTo(cx,cy-s*.9);x.lineTo(cx,cy+s*.5);x.stroke();x.beginPath();x.moveTo(cx-s*.5,cy-s*.9);x.lineTo(cx-s*.5,cy-s*.3);x.moveTo(cx+s*.5,cy-s*.9);x.lineTo(cx+s*.5,cy-s*.3);x.stroke();x.beginPath();x.moveTo(cx-s*.7,cy+s*.5);x.lineTo(cx+s*.7,cy+s*.5);x.stroke();x.beginPath();x.arc(cx,cy+s*.75,s*.22,0,Math.PI*2);x.stroke();},
+  // XVI La Torre — torre con rayo
+  (x,cx,cy,s)=>{x.beginPath();x.moveTo(cx-s*.35,cy+s*.9);x.lineTo(cx-s*.35,cy-s*.4);x.lineTo(cx+s*.35,cy-s*.4);x.lineTo(cx+s*.35,cy+s*.9);x.stroke();x.beginPath();x.moveTo(cx-s*.2,cy-s*.4);x.lineTo(cx-s*.2,cy-s*.7);x.lineTo(cx+s*.2,cy-s*.7);x.lineTo(cx+s*.2,cy-s*.4);x.stroke();x.beginPath();x.moveTo(cx+s*.6,cy-s*.9);x.lineTo(cx+s*.15,cy-s*.3);x.lineTo(cx+s*.4,cy-s*.3);x.lineTo(cx-s*.1,cy+s*.2);x.stroke();},
+  // XVII La Estrella — estrella de 8 puntas
+  (x,cx,cy,s)=>{for(let i=0;i<8;i++){const a=i*Math.PI/4-Math.PI/2;x.beginPath();x.moveTo(cx,cy);x.lineTo(cx+s*Math.cos(a),cy+s*Math.sin(a));x.stroke();}x.beginPath();x.arc(cx,cy,s*.22,0,Math.PI*2);x.stroke();},
+  // XVIII La Luna — luna llena con creciente
+  (x,cx,cy,s)=>{x.beginPath();x.arc(cx,cy,s*.7,0,Math.PI*2);x.stroke();x.beginPath();x.arc(cx+s*.25,cy,s*.55,Math.PI*.3,Math.PI*1.7,true);x.fillStyle='#1a1a1a';x.fill();x.stroke();x.beginPath();x.moveTo(cx-s*.3,cy+s*.85);x.lineTo(cx+s*.3,cy+s*.85);x.stroke();},
+  // XIX El Sol — sol radiante
+  (x,cx,cy,s)=>{x.beginPath();x.arc(cx,cy,s*.45,0,Math.PI*2);x.stroke();for(let i=0;i<12;i++){const a=i*Math.PI/6;x.beginPath();x.moveTo(cx+s*.55*Math.cos(a),cy+s*.55*Math.sin(a));x.lineTo(cx+s*.9*Math.cos(a),cy+s*.9*Math.sin(a));x.stroke();}},
+  // XX El Juicio — trompeta
+  (x,cx,cy,s)=>{x.beginPath();x.moveTo(cx-s*.6,cy-s*.2);x.lineTo(cx+s*.5,cy-s*.2);x.lineTo(cx+s*.5,cy+s*.1);x.lineTo(cx-s*.6,cy+s*.1);x.closePath();x.stroke();x.beginPath();x.moveTo(cx-s*.6,cy-s*.05);x.lineTo(cx-s*.6,cy+s*.9);x.stroke();x.beginPath();x.arc(cx,cy-s*.6,s*.32,0,Math.PI*2);x.stroke();x.beginPath();x.moveTo(cx-s*.15,cy-s*.28);x.lineTo(cx+s*.15,cy-s*.28);x.stroke();},
+  // XXI El Mundo — elipse con estrella
+  (x,cx,cy,s)=>{x.beginPath();x.ellipse(cx,cy,s*.4,s*.85,Math.PI/5,0,Math.PI*2);x.stroke();x.beginPath();x.ellipse(cx,cy,s*.4,s*.85,-Math.PI/5,0,Math.PI*2);x.stroke();x.beginPath();x.arc(cx,cy,s*.22,0,Math.PI*2);x.stroke();},
+];
+
+// Glifos para los 4 palos
+function glyphPalo(palo){
+  const map={
+    'Oros':(x,cx,cy,s)=>{x.beginPath();x.arc(cx,cy,s*.6,0,Math.PI*2);x.stroke();x.beginPath();x.arc(cx,cy,s*.3,0,Math.PI*2);x.stroke();for(let i=0;i<4;i++){const a=i*Math.PI/2;x.beginPath();x.moveTo(cx+s*.3*Math.cos(a),cy+s*.3*Math.sin(a));x.lineTo(cx+s*.6*Math.cos(a),cy+s*.6*Math.sin(a));x.stroke();}},
+    'Copas':(x,cx,cy,s)=>{x.beginPath();x.moveTo(cx-s*.5,cy-s*.6);x.lineTo(cx+s*.5,cy-s*.6);x.bezierCurveTo(cx+s*.6,cy,cx+s*.6,cy+s*.3,cx,cy+s*.8);x.bezierCurveTo(cx-s*.6,cy+s*.3,cx-s*.6,cy,cx-s*.5,cy-s*.6);x.stroke();x.beginPath();x.moveTo(cx-s*.3,cy+s*.8);x.lineTo(cx+s*.3,cy+s*.8);x.moveTo(cx,cy+s*.8);x.lineTo(cx,cy+s*.95);x.stroke();},
+    'Espadas':(x,cx,cy,s)=>{x.beginPath();x.moveTo(cx,cy-s*.9);x.lineTo(cx,cy+s*.5);x.stroke();x.beginPath();x.moveTo(cx-s*.4,cy-s*.1);x.lineTo(cx+s*.4,cy-s*.1);x.stroke();x.beginPath();x.moveTo(cx-s*.15,cy+s*.5);x.lineTo(cx+s*.15,cy+s*.5);x.lineTo(cx,cy+s*.9);x.closePath();x.stroke();},
+    'Bastos':(x,cx,cy,s)=>{x.beginPath();x.moveTo(cx,cy-s*.9);x.lineTo(cx,cy+s*.9);x.stroke();for(let i=0;i<3;i++){const yy=cy-s*.4+i*s*.4;x.beginPath();x.moveTo(cx-s*.4,yy);x.lineTo(cx+s*.4,yy);x.stroke();x.beginPath();x.arc(cx-s*.4,yy,s*.1,0,Math.PI*2);x.fill();x.beginPath();x.arc(cx+s*.4,yy,s*.1,0,Math.PI*2);x.fill();}},
+  };
+  return map[palo]||(x,cx,cy,s)=>{x.beginPath();x.arc(cx,cy,s*.5,0,Math.PI*2);x.stroke();};
+}
+
+function getGlifo(carta){
+  if(carta.palo==='Mayor') return GLIFOS_MAYORES[carta.id]||GLIFOS_MAYORES[0];
+  return glyphPalo(carta.palo);
+}
+
+/* ══════════════════════════════════════════════════════
+   ESTADO
+══════════════════════════════════════════════════════ */
+let mazoElegido=22, tiradaElegida=3, pregunta='', corteVal=50;
+let cartasTirada=[];
+
+/* ══════════════════════════════════════════════════════
+   NAVEGACIÓN
+══════════════════════════════════════════════════════ */
+function iniciar(){
+  document.querySelector('.hero').style.display='none';
+  irPaso(1);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function irPaso(n){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  const paso=document.getElementById('paso'+n);
+  if(paso){
+    paso.classList.add('active');
+    setTimeout(()=>paso.scrollIntoView({behavior:'smooth',block:'start'}),50);
+  }
+  if(n===4){
+    document.getElementById('corteTotalLabel').textContent=mazoElegido;
+    actualizarCorte(50);
+    dibujarDorsosBaraja();
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   PASO 1: MAZO
+══════════════════════════════════════════════════════ */
+function elegirMazo(n){
+  mazoElegido=n;
+  document.querySelectorAll('.mazo-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('mazo'+n).classList.add('selected');
+  document.getElementById('btnMazo').disabled=false;
+}
+
+/* ══════════════════════════════════════════════════════
+   PASO 2: TIRADA
+══════════════════════════════════════════════════════ */
+function elegirTirada(n){
+  tiradaElegida=n;
+  document.querySelectorAll('.tirada-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('t'+n).classList.add('selected');
+  document.getElementById('btnTirada').disabled=false;
+}
+
+/* ══════════════════════════════════════════════════════
+   PASO 4: CORTE
+══════════════════════════════════════════════════════ */
+function actualizarCorte(v){
+  corteVal=parseInt(v);
+  const total=mazoElegido;
+  const carta=Math.round(corteVal/100*total);
+  document.getElementById('corteVal').textContent=carta||1;
+  const slider=document.getElementById('corteSlider');
+  slider.style.setProperty('--pct',corteVal+'%');
+}
+
+function dibujarDorsosBaraja(){
+  ['deckCanvas1','deckCanvas2','deckCanvas3'].forEach(id=>{
+    const cv=document.getElementById(id);
+    if(!cv)return;
+    const ctx=cv.getContext('2d'),W=160,H=220;
+    ctx.fillStyle='#1a1a1a';ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle='rgba(201,168,76,0.3)';ctx.lineWidth=1;
+    ctx.strokeRect(6,6,W-12,H-12);
+    ctx.strokeRect(12,12,W-24,H-24);
+    // patrón
+    for(let i=0;i<5;i++)for(let j=0;j<7;j++){
+      const x=20+i*24,y=20+j*26;
+      ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);
+      ctx.strokeStyle='rgba(201,168,76,0.12)';ctx.lineWidth=0.8;ctx.stroke();
+    }
+    ctx.fillStyle='rgba(201,168,76,0.35)';ctx.font='20px serif';
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('✦',W/2,H/2);
+  });
+}
+
+/* ══════════════════════════════════════════════════════
+   REVELAR CARTAS
+══════════════════════════════════════════════════════ */
+function revelarCartas(){
+  const mazo=mazoElegido===22?[...MAZO_22]:[...MAZO_78];
+  // Usar el corte como semilla adicional de aleatoriedad
+  const corte=Math.round(corteVal/100*mazo.length);
+  const mazoCortado=[...mazo.slice(corte),...mazo.slice(0,corte)];
+  // Fisher-Yates
+  for(let i=mazoCortado.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [mazoCortado[i],mazoCortado[j]]=[mazoCortado[j],mazoCortado[i]];
+  }
+  cartasTirada=mazoCortado.slice(0,tiradaElegida).map(c=>({
+    ...c, invertida:Math.random()<0.3
+  }));
+
+  const posiciones={
+    1:['La Carta'],
+    3:['Pasado','Presente','Futuro'],
+    5:['Situación','Desafío','Pasado','Futuro','Resultado'],
+  };
+
+  pregunta=document.getElementById('preguntaInput').value.trim()||'Consulta sin pregunta específica';
+
+  const titulosMap={1:'Tu Carta del Momento',3:'Tirada Pasado · Presente · Futuro',5:'Cruz del Destino'};
+  document.getElementById('tiradaTitle').textContent=titulosMap[tiradaElegida]||'Tu Tirada';
+  document.getElementById('preguntaDisplay').textContent=`"${pregunta}"`;
+
+  // Construir cartas
+  const grid=document.getElementById('cartasGrid');
+  grid.innerHTML='';
+  const interps=document.getElementById('interpretaciones');
+  interps.innerHTML='';
+
+  const pos=posiciones[tiradaElegida]||Array.from({length:tiradaElegida},(_,i)=>`Carta ${i+1}`);
+
+  cartasTirada.forEach((carta,i)=>{
+    const wrap=document.createElement('div');wrap.className='carta-wrap';
+    const lbl=document.createElement('div');lbl.className='carta-pos-label';lbl.textContent=pos[i]||`Carta ${i+1}`;
+    const flip=document.createElement('div');flip.className='carta-flip';
+    flip.innerHTML=`
+      <div class="carta-inner" id="cartaInner${i}">
+        <div class="carta-back">
+          <div class="carta-back-inner"><canvas width="50" height="50" id="dorsoCv${i}"></canvas></div>
+        </div>
+        <div class="carta-front" style="${carta.invertida?'transform:rotateY(180deg) rotate(180deg)':'transform:rotateY(180deg)'}">
+          <div>
+            <div class="carta-numero">${carta.num}</div>
+            ${carta.invertida?'<div class="carta-invertida-badge">Invertida</div>':''}
+          </div>
+          <canvas width="70" height="70" id="cartaCv${i}"></canvas>
+          <div class="carta-nombre">${carta.nombre}</div>
+          ${carta.palo!=='Mayor'?`<div class="carta-palo">${carta.palo}</div>`:''}
+        </div>
+      </div>`;
+    flip.onclick=()=>{
+      document.getElementById(`cartaInner${i}`).classList.toggle('flipped');
+    };
+    wrap.appendChild(lbl);wrap.appendChild(flip);
+    grid.appendChild(wrap);
+
+    // Interpretación
+    const ic=document.createElement('div');ic.className='interp-card';
+    const cv=document.createElement('canvas');cv.className='interp-canvas';cv.width=44;cv.height=44;cv.id=`interpCv${i}`;
+    ic.innerHTML=`
+      <div class="interp-header">
+        <canvas class="interp-canvas" width="44" height="44" id="interpCv${i}"></canvas>
+        <div class="interp-meta">
+          <div class="interp-pos">${pos[i]||`Carta ${i+1}`}</div>
+          <div class="interp-name">${carta.nombre}</div>
+          ${carta.invertida?'<div class="interp-inv">✦ Invertida</div>':''}
+        </div>
+      </div>
+      <p class="interp-text">${carta.invertida?carta.desc_i:carta.desc_d}</p>`;
+    interps.appendChild(ic);
+  });
+
+  irPaso(5);
+
+  // Dibujar glifos después de que el DOM esté listo
+  setTimeout(()=>{
+    cartasTirada.forEach((carta,i)=>{
+      const glifo=getGlifo(carta);
+      // Dorso
+      const dorsoCv=document.getElementById(`dorsoCv${i}`);
+      if(dorsoCv){const ctx=dorsoCv.getContext('2d');drawSello(ctx,25,25,23,(x,cx,cy,s)=>{x.fillStyle='rgba(201,168,76,0.3)';x.font=`${s}px serif`;x.textAlign='center';x.textBaseline='middle';x.fillText('✦',cx,cy);},false);}
+      // Frente
+      const cartaCv=document.getElementById(`cartaCv${i}`);
+      if(cartaCv){const ctx=cartaCv.getContext('2d');drawSello(ctx,35,35,33,glifo,true);}
+      // Interpretación
+      const interpCv=document.getElementById(`interpCv${i}`);
+      if(interpCv){const ctx=interpCv.getContext('2d');drawSello(ctx,22,22,21,glifo,true);}
+    });
+    // Síntesis
+    generarSintesis();
+    // Auto-voltear primera carta con delay
+    setTimeout(()=>{
+      cartasTirada.forEach((_,i)=>{
+        setTimeout(()=>{
+          const inner=document.getElementById(`cartaInner${i}`);
+          if(inner)inner.classList.add('flipped');
+        },i*400);
+      });
+    },300);
+  },100);
+}
+
+/* ══════════════════════════════════════════════════════
+   SÍNTESIS
+══════════════════════════════════════════════════════ */
+function generarSintesis(){
+  const nombres=cartasTirada.map(c=>c.nombre+(c.invertida?' (Invertida)':'')).join(', ');
+  const pos={1:'La carta',3:'La secuencia',5:'La cruz'}[tiradaElegida]||'La tirada';
+  document.getElementById('sintesisText').textContent=
+    `${pos} formada por ${nombres} dibuja un mensaje claro para tu consulta. Las energías presentes en esta tirada no son coincidencias — son el espejo de lo que ya está en movimiento en tu interior. Observa especialmente la carta central, que contiene el núcleo del mensaje. El tarot no dice lo que debes hacer: te muestra lo que ya sabes pero aún no te has permitido ver con claridad.`;
+}
+
+/* ══════════════════════════════════════════════════════
+   RESET
+══════════════════════════════════════════════════════ */
+function nuevaConsulta(){
+  mazoElegido=22;tiradaElegida=3;pregunta='';corteVal=50;cartasTirada=[];
+  document.querySelectorAll('.mazo-btn,.tirada-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('btnMazo').disabled=true;
+  document.getElementById('btnTirada').disabled=true;
+  document.getElementById('preguntaInput').value='';
+  document.getElementById('cartasGrid').innerHTML='';
+  document.getElementById('interpretaciones').innerHTML='';
+  document.querySelector('.hero').style.display='flex';
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ══════════════════════════════════════════════════════
+   HERO RING
+══════════════════════════════════════════════════════ */
+(function(){
+  const cv=document.getElementById('heroRing'),ctx=cv.getContext('2d'),S=120,c=60;
+  const glifosHero=[0,3,6,9,12,15,18,21].map(i=>GLIFOS_MAYORES[i]);
+  let angle=0;
+  function frame(){
+    angle+=0.07;ctx.clearRect(0,0,S,S);
+    ctx.beginPath();ctx.arc(c,c,55,0,Math.PI*2);ctx.strokeStyle='rgba(201,168,76,0.14)';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='rgba(201,168,76,0.38)';ctx.font='13px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('✦',c,c);
+    glifosHero.forEach((g,i)=>{
+      const a=(i/8)*Math.PI*2+(angle*Math.PI/180)-Math.PI/2;
+      drawSello(ctx,c+50*Math.cos(a),c+50*Math.sin(a),8,g,i%2===0);
+    });
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* ══════════════════════════════════════════════════════
+   ESTRELLAS
+══════════════════════════════════════════════════════ */
+(function(){
+  const c=document.getElementById('stars');
+  for(let i=0;i<100;i++){
+    const s=document.createElement('div');s.className='star';
+    const sz=Math.random()*1.4+0.3;
+    s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation:tw ${(Math.random()*3+2).toFixed(1)}s ease-in-out ${(Math.random()*5).toFixed(1)}s infinite;`;
+    c.appendChild(s);
+  }
+})();
+</script>
+</body>
+</html>
